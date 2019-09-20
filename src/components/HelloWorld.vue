@@ -6,6 +6,9 @@
       </v-flex>
     </v-layout>
 
+    <v-checkbox v-model="getData" :label="`Get Data:`"></v-checkbox>
+    <v-flex mb-4>{{ fetchedData }}</v-flex>
+
     <v-layout text-center wrap>
       <v-flex mb-4>
         <Plotly :data="tab" :layout="layout" :display-mode-bar="false"></Plotly>
@@ -16,13 +19,17 @@
 
 <script>
 import { Plotly } from "vue-plotly";
+import axios from "axios";
+
+var tab = []
 
 var z1 = [
-  [6.7, 6.9, 7, 7, 7, 7, 6.9, 6.7],
+  // [6.7, 6.9, 7, 7, 7, 7, 6.9, 6.7],
+  // [2, 2, 2, 2, 2, 2, 2, 2],
+  // [6.7, 6.9, 7, 7, 7, 7, 6.9, 6.7],
+  [8.83, 8.89, 8.81, 8.87, 8.9, 8.87],
   [2, 2, 2, 2, 2, 2, 2, 2],
-  [6.7, 6.9, 7, 7, 7, 7, 6.9, 6.7]
-  // [8.83, 8.89, 8.81, 8.87, 8.9, 8.87],
-  // [8.89, 8.94, 8.85, 8.94, 8.96, 8.92],
+  [8.89, 8.94, 8.85, 8.94, 8.96, 8.92]
   // [8.84, 8.9, 8.82, 8.92, 8.93, 8.91],
   // [8.79, 8.85, 8.79, 8.9, 8.94, 8.92],
   // [8.79, 8.88, 8.81, 8.9, 8.95, 8.92],
@@ -64,13 +71,35 @@ export default {
       //   b: 65,
       //   t: 90
       // }
-    }
+    },
+
+    timer: null,
+    fetchedData: null,
+    getData: false
   }),
+  beforeDestroy() {
+    clearInterval(this.timer);
+  },
+  methods: {
+    fetchData() {
+      if (this.getData) {
+        axios
+          .get("http://127.0.0.1:8070/iotgateway/read?ids=Siemens.PLC.ClockMem")
+          .then(response => (this.fetchedData = response.data));
+
+        // eslint-disable-next-line
+        console.log("fetchedData: ", this.fetchedData.readResults[0].v);
+      }
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
+    }
+  },
   created() {
     // eslint-disable-next-line
     console.log("created()...");
-    // eslint-disable-next-line
-    // console.log(this.tab[0].y[0]);
+
+    this.timer = setInterval(this.fetchData, 500);
   }
 };
 </script>

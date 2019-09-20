@@ -8,7 +8,7 @@
       <v-spacer></v-spacer>
       <v-btn
         text
-        href="https://github.com/dkt64"
+        href="https://github.com/dkt64/visu"
         target="_blank"
       >
         <span class="mr-2">Latest Release</span>
