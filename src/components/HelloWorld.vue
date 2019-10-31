@@ -9,6 +9,7 @@
     <v-layout text-center wrap>
       <v-flex mb-4>
         <Plotly :data="tab" :layout="layout"></Plotly>
+        {{dummy}}
       </v-flex>
     </v-layout>
 
@@ -21,24 +22,52 @@
 import { Plotly } from "vue-plotly";
 import axios from "axios";
 
+var z_values = new Array(16)
+
+var xaxisTemplate = {
+  range: [0, 128],
+  autorange: true,
+  showgrid: true,
+  zeroline: false,
+  linecolor: "black",
+  showticklabels: false,
+  ticks: ""
+};
+
+var yaxisTemplate = {
+  range: [0, 16],
+  autorange: true,
+  showgrid: true,
+  zeroline: false,
+  linecolor: "black",
+  showticklabels: false,
+  ticks: ""
+};
+
 export default {
   components: {
     Plotly
   },
   data: () => ({
+    dummy: 0,
     tab: [
       {
-        z: [],
-        type: "heatmap",
+        x: [],
+        y: [],
+        z: z_values,
+        type: "heatmap"
       }
     ],
 
     layout: {
       title: "Siemens.PLC.Merkers",
+      xaxis: xaxisTemplate,
+      yaxis: yaxisTemplate
     },
 
     fetchedData: null,
-    getData: true
+    getData: true,
+    cycle: null
   }),
   beforeDestroy() {
     clearInterval(this.timer);
@@ -51,26 +80,50 @@ export default {
           .then(response => (this.fetchedData = response.data));
 
         if (this.fetchedData != null) {
+          if (this.fetchedData.readResults[0].s) {
 
-          this.tab[0].z.push(JSON.parse(this.fetchedData.readResults[0].v))
+            if (z_values.length == 16) {
+              z_values.shift();
+              // this.tab[0].y.shift();
+            }
 
-          if (this.tab[0].z.length > 16) {
-            this.tab[0].z.shift();
+            z_values.push(JSON.parse(this.fetchedData.readResults[0].v));
+
+            // this.tab[0].y.push(JSON.parse(this.fetchedData.readResults[0].t % 1000000));
+
+            // yaxisTemplate.range[0] = this.tab[0].y[0]
+            // yaxisTemplate.range[1] = this.tab[0].y[15]
+
+            this.dummy++;
           }
-          
-          
         }
       }
     },
     cancelAutoUpdate() {
-      clearInterval(this.timer);
+      clearInterval(this.cycle);
     }
   },
   created() {
     // eslint-disable-next-line
     console.log("created()...");
 
-    this.timer = setInterval(this.fetchData, 1000);
+    var dx, dy;
+    for (dx = 0; dx < 16; dx++) {
+      this.tab[0].y.push(dx);
+    }
+    for (dx = 0; dx < 128; dx++) {
+      this.tab[0].x.push(dx);
+    }
+
+    // for (dx = 0; dx < 16; dx++) {
+    //   var arr = new Array(128);
+    //   for (dy = 0; dy < 128; dy++) {
+    //     arr[dy] = Math.random() * 256
+    //   }
+    //   z_values.push(arr);
+    // }
+
+    this.cycle = setInterval(this.fetchData, 1000);
   }
 };
 </script>
