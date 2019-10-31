@@ -58,6 +58,7 @@ export default {
             this.tab[0].z.shift();
           }
           
+          
         }
       }
     },
