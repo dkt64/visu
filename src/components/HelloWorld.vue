@@ -22,8 +22,6 @@
 import { Plotly } from "vue-plotly";
 import axios from "axios";
 
-var z_values = new Array(16)
-
 var xaxisTemplate = {
   range: [0, 128],
   autorange: true,
@@ -49,12 +47,13 @@ export default {
     Plotly
   },
   data: () => ({
+    z_values: [],
     dummy: 0,
     tab: [
       {
-        x: [],
-        y: [],
-        z: z_values,
+        // x: [],
+        // y: [],
+        z: [],
         type: "heatmap"
       }
     ],
@@ -81,21 +80,25 @@ export default {
 
         if (this.fetchedData != null) {
           if (this.fetchedData.readResults[0].s) {
-
-            if (z_values.length == 16) {
-              z_values.shift();
+            if (this.z_values.length == 16) {
+              this.z_values.shift();
               // this.tab[0].y.shift();
             }
 
-            z_values.push(JSON.parse(this.fetchedData.readResults[0].v));
+            this.z_values.push(JSON.parse(this.fetchedData.readResults[0].v));
 
             // this.tab[0].y.push(JSON.parse(this.fetchedData.readResults[0].t % 1000000));
 
             // yaxisTemplate.range[0] = this.tab[0].y[0]
             // yaxisTemplate.range[1] = this.tab[0].y[15]
-
-            this.dummy++;
           }
+
+          if ((this.dummy & 1) > 0) {
+            this.tab[0].z = [];
+          } else {
+            this.tab[0].z = this.z_values;
+          }
+          this.dummy++;
         }
       }
     },
@@ -107,13 +110,13 @@ export default {
     // eslint-disable-next-line
     console.log("created()...");
 
-    var dx, dy;
-    for (dx = 0; dx < 16; dx++) {
-      this.tab[0].y.push(dx);
-    }
-    for (dx = 0; dx < 128; dx++) {
-      this.tab[0].x.push(dx);
-    }
+    // var dx, dy;
+    // for (dx = 0; dx < 16; dx++) {
+    //   this.tab[0].y.push(dx);
+    // }
+    // for (dx = 0; dx < 128; dx++) {
+    //   this.tab[0].x.push(dx);
+    // }
 
     // for (dx = 0; dx < 16; dx++) {
     //   var arr = new Array(128);
@@ -123,7 +126,7 @@ export default {
     //   z_values.push(arr);
     // }
 
-    this.cycle = setInterval(this.fetchData, 1000);
+    this.cycle = setInterval(this.fetchData, 200);
   }
 };
 </script>
