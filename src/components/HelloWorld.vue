@@ -8,7 +8,7 @@
 
     <v-layout text-center wrap>
       <v-flex mb-4>
-        <Plotly :data="tab" :layout="layout"></Plotly>
+        <vue-plotly :data="tab"></vue-plotly>
         {{dummy}}
       </v-flex>
     </v-layout>
@@ -19,8 +19,11 @@
 </template>
 
 <script>
-import { Plotly } from "vue-plotly";
+// import { Plotly } from "vue-plotly";
+import VuePlotly from "@statnett/vue-plotly";
 import axios from "axios";
+
+const CYCLES = 128
 
 var xaxisTemplate = {
   range: [0, 128],
@@ -33,7 +36,7 @@ var xaxisTemplate = {
 };
 
 var yaxisTemplate = {
-  range: [0, 16],
+  range: [0, CYCLES],
   autorange: true,
   showgrid: true,
   zeroline: false,
@@ -44,7 +47,7 @@ var yaxisTemplate = {
 
 export default {
   components: {
-    Plotly
+    VuePlotly
   },
   data: () => ({
     z_values: [],
@@ -73,6 +76,7 @@ export default {
   },
   methods: {
     fetchData() {
+      clearInterval(this.cycle);
       if (this.getData) {
         axios
           .get("http://127.0.0.1:8070/iotgateway/read?ids=Siemens.PLC.Merkers")
@@ -80,27 +84,19 @@ export default {
 
         if (this.fetchedData != null) {
           if (this.fetchedData.readResults[0].s) {
-            if (this.z_values.length == 16) {
+            if (this.z_values.length == CYCLES) {
               this.z_values.shift();
-              // this.tab[0].y.shift();
             }
 
             this.z_values.push(JSON.parse(this.fetchedData.readResults[0].v));
 
-            // this.tab[0].y.push(JSON.parse(this.fetchedData.readResults[0].t % 1000000));
-
-            // yaxisTemplate.range[0] = this.tab[0].y[0]
-            // yaxisTemplate.range[1] = this.tab[0].y[15]
-          }
-
-          if ((this.dummy & 1) > 0) {
-            this.tab[0].z = [];
-          } else {
             this.tab[0].z = this.z_values;
+
+            this.dummy++;
           }
-          this.dummy++;
         }
       }
+      this.cycle = setInterval(this.fetchData, 100);
     },
     cancelAutoUpdate() {
       clearInterval(this.cycle);
@@ -126,7 +122,7 @@ export default {
     //   z_values.push(arr);
     // }
 
-    this.cycle = setInterval(this.fetchData, 200);
+    this.cycle = setInterval(this.fetchData, 100);
   }
 };
 </script>
