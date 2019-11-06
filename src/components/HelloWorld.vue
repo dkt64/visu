@@ -1,14 +1,14 @@
 <template>
   <v-container>
-    <v-layout text-center wrap>
+    <!-- <v-layout text-center wrap>
       <v-flex mb-4>
         <h1 class="display-2 font-weight-bold mb-3">DTP-VISU VUE PLOTLY</h1>
       </v-flex>
-    </v-layout>
+    </v-layout> -->
 
     <v-layout text-center wrap>
       <v-flex mb-4>
-        <Plotly :data="tab"></Plotly>
+        <Plotly :data="tab" :layout="layout"></Plotly>
         {{dummy}}
       </v-flex>
     </v-layout>
@@ -34,7 +34,7 @@ import axios from "axios";
 import { mask } from "vue-the-mask";
 // import * as FormData from 'form-data';
 
-const CYCLES = 64;
+const CYCLES = 512;
 
 var xaxisTemplate = {
   range: [0, 128],
@@ -78,14 +78,15 @@ export default {
     ],
 
     layout: {
-      title: "Siemens.PLC.Merkers",
-      xaxis: xaxisTemplate,
-      yaxis: yaxisTemplate
+      title: "PLC   IB: 0...127   MB: 0...127",
+      // xaxis: xaxisTemplate,
+      // yaxis: yaxisTemplate,
+      height: 600,
     },
 
     fetchedData: null,
     response_data: null,
-    getData: false,
+    getData: true,
     cycle: null
   }),
   beforeDestroy() {
@@ -97,54 +98,54 @@ export default {
     },
     submitPlcAddress() {
       clearInterval(this.cycle);
+      if (this.getData) {
+        var query = "http://localhost/api/v1/s7?plc_address=" + this.plcAddress;
 
-      var query = "http://localhost/api/v1/s7?plc_address=" + this.plcAddress;
-
-      // eslint-disable-next-line
-      // console.log("Query = " + query);
-
-      const config = {
-        responseType: "arraybuffer"
-        // maxContentLength: 256,
-        // responseEncoding: 'utf8'
-      };
-
-      // Add a response interceptor
-      axios.interceptors.response.use(
-        function(response) {
-          // Any status code that lie within the range of 2xx cause this function to trigger
-          // Do something with response data
-
-          // eslint-disable-next-line
-          // console.log("Intercepted.")
-          return response;
-        },
-        function(error) {
-          // Any status codes that falls outside the range of 2xx cause this function to trigger
-          // Do something with response error
-          return Promise.reject(error);
-        }
-      );
-
-      axios.get(query, config).then(response => {
         // eslint-disable-next-line
-        // console.log("Response: " + this.response_data);
+        // console.log("Query = " + query);
 
-        if (response.data.byteLength == 256) {
-          this.response_data = new Uint8Array(response.data);
+        const config = {
+          responseType: "arraybuffer"
+          // maxContentLength: 256,
+          // responseEncoding: 'utf8'
+        };
 
-          if (this.z_values.length == CYCLES) {
-            this.z_values.shift();
+        // Add a response interceptor
+        axios.interceptors.response.use(
+          function(response) {
+            // Any status code that lie within the range of 2xx cause this function to trigger
+            // Do something with response data
+
+            // eslint-disable-next-line
+            // console.log("Intercepted.")
+            return response;
+          },
+          function(error) {
+            // Any status codes that falls outside the range of 2xx cause this function to trigger
+            // Do something with response error
+            return Promise.reject(error);
           }
+        );
 
-          this.z_values.push(this.response_data);
+        axios.get(query, config).then(response => {
+          // eslint-disable-next-line
+          // console.log("Response: " + this.response_data);
 
-          this.tab[0].z = this.z_values;
+          if (response.data.byteLength == 256) {
+            this.response_data = new Uint8Array(response.data);
 
-          this.dummy++;
-        }
-      });
+            if (this.z_values.length == CYCLES) {
+              this.z_values.shift();
+            }
 
+            this.z_values.push(this.response_data);
+
+            this.tab[0].z = this.z_values;
+
+            this.dummy++;
+          }
+        });
+      }
       this.cycle = setInterval(this.submitPlcAddress, 250);
     },
     fetchData() {
