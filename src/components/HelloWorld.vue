@@ -32,8 +32,9 @@
 import Plotly from "@statnett/vue-plotly";
 import axios from "axios";
 import { mask } from "vue-the-mask";
+// import * as FormData from 'form-data';
 
-const CYCLES = 128;
+const CYCLES = 64;
 
 var xaxisTemplate = {
   range: [0, 128],
@@ -95,40 +96,56 @@ export default {
       this.plcAddress = "";
     },
     submitPlcAddress() {
+      clearInterval(this.cycle);
+
       var query = "http://localhost/api/v1/s7?plc_address=" + this.plcAddress;
 
       // eslint-disable-next-line
-      console.log("Query = " + query);
+      // console.log("Query = " + query);
 
-      axios.get(query).then(response => {
-        this.response_data = response.data;
+      const config = {
+        responseType: "arraybuffer"
+        // maxContentLength: 256,
+        // responseEncoding: 'utf8'
+      };
 
+      // Add a response interceptor
+      axios.interceptors.response.use(
+        function(response) {
+          // Any status code that lie within the range of 2xx cause this function to trigger
+          // Do something with response data
+
+          // eslint-disable-next-line
+          // console.log("Intercepted.")
+          return response;
+        },
+        function(error) {
+          // Any status codes that falls outside the range of 2xx cause this function to trigger
+          // Do something with response error
+          return Promise.reject(error);
+        }
+      );
+
+      axios.get(query, config).then(response => {
         // eslint-disable-next-line
-        console.log("Response: " + this.response_data);
+        // console.log("Response: " + this.response_data);
 
-        if (this.response_data.length > 0) {
+        if (response.data.byteLength == 256) {
+          this.response_data = new Uint8Array(response.data);
+
           if (this.z_values.length == CYCLES) {
             this.z_values.shift();
           }
 
-
-          var buf = new Uint8Array(256)
-          
-          var index
-          for (index = 0; index<256; index++){
-            buf[index] = this.response_data[index]
-          }
-
-          this.z_values.push(buf.values);
+          this.z_values.push(this.response_data);
 
           this.tab[0].z = this.z_values;
 
           this.dummy++;
         }
-
-        // eslint-disable-next-line
-        // console.log("Response: " + JSON.parse(this.response_data));
       });
+
+      this.cycle = setInterval(this.submitPlcAddress, 250);
     },
     fetchData() {
       clearInterval(this.cycle);
@@ -151,7 +168,7 @@ export default {
           }
         }
       }
-      this.cycle = setInterval(this.fetchData, 100);
+      this.cycle = setInterval(this.fetchData, 250);
     },
     cancelAutoUpdate() {
       clearInterval(this.cycle);
@@ -177,7 +194,7 @@ export default {
     //   z_values.push(arr);
     // }
 
-    this.cycle = setInterval(this.fetchData, 100);
+    // this.cycle = setInterval(this.fetchData, 100);
 
     // this.$mqtt.subscribe('iotgateway')
   }
