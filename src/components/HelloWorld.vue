@@ -8,10 +8,19 @@
 
     <v-layout text-center wrap>
       <v-flex mb-4>
-        <vue-plotly :data="tab"></vue-plotly>
+        <Plotly :data="tab"></Plotly>
         {{dummy}}
       </v-flex>
     </v-layout>
+
+    <v-text-field
+      v-on:keyup.enter="submitPlcAddress"
+      v-model="plcAddress"
+      label="Remote PLC IP Address"
+    ></v-text-field>
+
+    <v-btn class="mr-4" color="success" @click="submitPlcAddress">submit</v-btn>
+    <v-btn @click="clearPlcAddress">clear</v-btn>
 
     <v-checkbox v-model="getData" :label="`Get Data:`"></v-checkbox>
     <v-flex mb-4>{{ fetchedData }}</v-flex>
@@ -20,10 +29,11 @@
 
 <script>
 // import { Plotly } from "vue-plotly";
-import VuePlotly from "@statnett/vue-plotly";
+import Plotly from "@statnett/vue-plotly";
 import axios from "axios";
+import { mask } from "vue-the-mask";
 
-const CYCLES = 128
+const CYCLES = 128;
 
 var xaxisTemplate = {
   range: [0, 128],
@@ -46,10 +56,15 @@ var yaxisTemplate = {
 };
 
 export default {
+  directives: {
+    mask
+  },
   components: {
-    VuePlotly
+    Plotly
   },
   data: () => ({
+    mask: "###.###.###.###",
+    plcAddress: "",
     z_values: [],
     dummy: 0,
     tab: [
@@ -68,13 +83,53 @@ export default {
     },
 
     fetchedData: null,
-    getData: true,
+    response_data: null,
+    getData: false,
     cycle: null
   }),
   beforeDestroy() {
     clearInterval(this.timer);
   },
   methods: {
+    clearPlcAddress() {
+      this.plcAddress = "";
+    },
+    submitPlcAddress() {
+      var query = "http://localhost/api/v1/s7?plc_address=" + this.plcAddress;
+
+      // eslint-disable-next-line
+      console.log("Query = " + query);
+
+      axios.get(query).then(response => {
+        this.response_data = response.data;
+
+        // eslint-disable-next-line
+        console.log("Response: " + this.response_data);
+
+        if (this.response_data.length > 0) {
+          if (this.z_values.length == CYCLES) {
+            this.z_values.shift();
+          }
+
+
+          var buf = new Uint8Array(256)
+          
+          var index
+          for (index = 0; index<256; index++){
+            buf[index] = this.response_data[index]
+          }
+
+          this.z_values.push(buf.values);
+
+          this.tab[0].z = this.z_values;
+
+          this.dummy++;
+        }
+
+        // eslint-disable-next-line
+        // console.log("Response: " + JSON.parse(this.response_data));
+      });
+    },
     fetchData() {
       clearInterval(this.cycle);
       if (this.getData) {
@@ -104,7 +159,7 @@ export default {
   },
   created() {
     // eslint-disable-next-line
-    console.log("created()...");
+    console.log("created()....");
 
     // var dx, dy;
     // for (dx = 0; dx < 16; dx++) {
@@ -123,6 +178,8 @@ export default {
     // }
 
     this.cycle = setInterval(this.fetchData, 100);
+
+    // this.$mqtt.subscribe('iotgateway')
   }
 };
 </script>
