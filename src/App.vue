@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import HelloWorld from './components/visu';
 
 export default {
   name: 'App',

@@ -56,6 +56,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-flex mb-4>Message: {{server_message}}</v-flex>
+
     <!-- <v-layout text-center wrap>
       <v-flex mb-4>{{dummy}}</v-flex>
     </v-layout>-->
@@ -69,6 +72,8 @@
 import Plotly from "@statnett/vue-plotly";
 import axios from "axios";
 import { mask } from "vue-the-mask";
+// import VueSSE from 'vue-sse';
+
 // import * as FormData from 'form-data';
 
 const CYCLES = 256;
@@ -118,6 +123,8 @@ var interval = {
   }
 };
 
+// let msgServer;
+
 export default {
   directives: {
     mask
@@ -126,6 +133,8 @@ export default {
     Plotly
   },
   data: () => ({
+    msgServer: null,
+    server_message: null,
     mask: "###.###.###.###",
     plcAddress: "",
     z_values: [],
@@ -171,6 +180,7 @@ export default {
       // clearInterval(this.cycle);
       interval.clearAll();
       this.connected = false;
+      this.msgServer.close();
     },
     connect() {
       // eslint-disable-next-line
@@ -190,8 +200,7 @@ export default {
           this.plcAddress +
           "&slot_nr=" +
           this.slotNr;
-          "&period=" +
-          this.period;
+        "&period=" + this.period;
 
         // eslint-disable-next-line
         // console.log("Query = " + query);
@@ -228,6 +237,68 @@ export default {
             console.log(error);
           });
       }
+    }
+  },
+  mounted() {
+    if (typeof EventSource !== "undefined") {
+     
+      this.$sse("http://localhost/api/v1/events", { format: 'plain' }) // or { format: 'json' }
+        .then(sse => {
+          // Store SSE object at a higher scope
+          this.msgServer = sse;
+
+          // Catch any errors (ie. lost connections, etc.)
+          sse.onError(e => {
+            // eslint-disable-next-line
+            // console.error("lost connection; giving up!", e);
+
+            // This is purely for example; EventSource will automatically
+            // attempt to reconnect indefinitely, with no action needed
+            // on your part to resubscribe to events once (if) reconnected
+            sse.close();
+          });
+
+          // Listen for messages without a specified event
+          sse.subscribe("", data => {
+            // eslint-disable-next-line
+            console.log("Received a message w/o an event!", data);
+          });
+
+          // Listen for messages based on their event (in this case, "chat")
+          sse.subscribe("chat", message => {
+            // eslint-disable-next-line
+            console.log("Received chat message: ", message);
+            // this.messages.push(message);
+          });
+
+          // Unsubscribes from event-less messages after 7 seconds
+          setTimeout(() => {
+            sse.unsubscribe("");
+
+            // eslint-disable-next-line
+            console.log("Stopped listening to event-less messages!");
+          }, 7000);
+
+          // Unsubscribes from chat messages after 7 seconds
+          setTimeout(() => {
+            sse.unsubscribe("chat");
+
+            // eslint-disable-next-line
+            console.log("Stopped listening to chat messages!");
+          }, 14000);
+        })
+        .catch(err => {
+          // When this error is caught, it means the initial connection to the
+          // events server failed.  No automatic attempts to reconnect will be made.
+          // eslint-disable-next-line
+          console.error("Failed to connect to server", err);
+        });
+    } else {
+      alert(
+        "Your browser does not support Server-sent events! Please upgrade it!"
+      );
+      // eslint-disable-next-line
+      console.error("Connection aborted");
     }
   },
   created() {
