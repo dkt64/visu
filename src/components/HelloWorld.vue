@@ -190,13 +190,15 @@ export default {
           this.plcAddress +
           "&slot_nr=" +
           this.slotNr;
+          "&period=" +
+          this.period;
 
         // eslint-disable-next-line
         // console.log("Query = " + query);
 
         const config = {
           responseType: "arraybuffer",
-          timeout: 5000
+          timeout: this.period
           // maxContentLength: 256,
           // responseEncoding: 'utf8'
         };
