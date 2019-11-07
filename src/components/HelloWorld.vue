@@ -1,29 +1,61 @@
 <template>
   <v-container>
-    <!-- <v-layout text-center wrap>
-      <v-flex mb-4>
-        <h1 class="display-2 font-weight-bold mb-3">DTP-VISU VUE PLOTLY</h1>
-      </v-flex>
-    </v-layout> -->
-
     <v-layout text-center wrap>
-      <v-flex mb-4>
-        <Plotly :data="tab" :layout="layout"></Plotly>
-        {{dummy}}
+      <v-flex mb-1>
+        <h1 class="display-2 font-weight-bold mb-3">SIEMENS S7 PLC VISUALISATION SYSTEM</h1>
       </v-flex>
     </v-layout>
 
-    <v-text-field
-      v-on:keyup.enter="submitPlcAddress"
-      v-model="plcAddress"
-      label="Remote PLC IP Address"
-    ></v-text-field>
+    <v-row no-gutters>
+      <v-col cols="3">
+        <v-card elevation="10" style="margin: 4px">
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title class="headline mb-1">SIEMENS S7 PLC</v-list-item-title>
+              <v-list-item-subtitle>Setup connection parameters:</v-list-item-subtitle>
 
-    <v-btn class="mr-4" color="success" @click="submitPlcAddress">submit</v-btn>
-    <v-btn @click="clearPlcAddress">clear</v-btn>
+              <v-row no-gutters>
+                <v-col>
+                  <v-text-field
+                    v-on:keyup.enter="connect"
+                    v-model="plcAddress"
+                    label="Remote PLC IP Address"
+                  ></v-text-field>
+                  <v-text-field v-model="slotNr" label="Slot nr"></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-btn
+                  style="width: 120px; margin: 2px"
+                  class="mr-4"
+                  color="success"
+                  @click="connect"
+                  :disabled="connected == true"
+                >connect</v-btn>
+                <v-btn
+                  style="width: 120px;margin: 2px"
+                  @click="disconnect"
+                  :disabled="connected == false"
+                >disconnect</v-btn>
+              </v-row>
+              <v-row no-gutters>
+                <v-checkbox v-model="getData" :label="`Get Data`" style="margin-left: 8px"></v-checkbox>
+              </v-row>
+            </v-list-item-content>
+          </v-list-item>
+        </v-card>
+      </v-col>
+      <v-col cols="9">
+        <v-card elevation="10" style="margin: 4px">
+          <Plotly :data="tab" :layout="layout"></Plotly>
+        </v-card>
+      </v-col>
+    </v-row>
+    <!-- <v-layout text-center wrap>
+      <v-flex mb-4>{{dummy}}</v-flex>
+    </v-layout>-->
 
-    <v-checkbox v-model="getData" :label="`Get Data:`"></v-checkbox>
-    <v-flex mb-4>{{ fetchedData }}</v-flex>
+    <!-- <v-flex mb-4>{{ fetchedData }}</v-flex> -->
   </v-container>
 </template>
 
@@ -34,27 +66,27 @@ import axios from "axios";
 import { mask } from "vue-the-mask";
 // import * as FormData from 'form-data';
 
-const CYCLES = 512;
+const CYCLES = 256;
 
-var xaxisTemplate = {
-  range: [0, 128],
-  autorange: true,
-  showgrid: true,
-  zeroline: false,
-  linecolor: "black",
-  showticklabels: false,
-  ticks: ""
-};
+// var xaxisTemplate = {
+//   range: [0, 128],
+//   autorange: true,
+//   showgrid: true,
+//   zeroline: false,
+//   linecolor: "black",
+//   showticklabels: false,
+//   ticks: ""
+// };
 
-var yaxisTemplate = {
-  range: [0, CYCLES],
-  autorange: true,
-  showgrid: true,
-  zeroline: false,
-  linecolor: "black",
-  showticklabels: false,
-  ticks: ""
-};
+// var yaxisTemplate = {
+//   range: [0, CYCLES],
+//   autorange: true,
+//   showgrid: true,
+//   zeroline: false,
+//   linecolor: "black",
+//   showticklabels: false,
+//   ticks: ""
+// };
 
 export default {
   directives: {
@@ -78,101 +110,83 @@ export default {
     ],
 
     layout: {
-      title: "PLC   IB: 0...127   MB: 0...127",
+      paper_bgcolor: "white",
+      plot_bgcolor: "white",
+      title: {
+        text: "PLC streaming data",
+        font: {
+          size: 32
+        }
+      }
       // xaxis: xaxisTemplate,
-      // yaxis: yaxisTemplate,
-      height: 600,
+      // yaxis: yaxisTemplate
+      // height: 600
     },
 
     fetchedData: null,
     response_data: null,
     getData: true,
-    cycle: null
+    cycle: null,
+    connected: false,
+    slotNr: 2
   }),
   beforeDestroy() {
     clearInterval(this.timer);
+    this.connected = false;
   },
   methods: {
-    clearPlcAddress() {
-      this.plcAddress = "";
-    },
-    submitPlcAddress() {
+    disconnect() {
       clearInterval(this.cycle);
+      this.connected = false;
+    },
+    connect() {
+      clearInterval(this.cycle);
+      this.cycle = setInterval(this.fetchData, 250);
+    },
+    fetchData() {
+      this.connected = true;
       if (this.getData) {
-        var query = "http://localhost/api/v1/s7?plc_address=" + this.plcAddress;
+        var query =
+          "http://localhost/api/v1/s7?plc_address=" +
+          this.plcAddress +
+          "&slot_nr=" +
+          this.slotNr;
 
         // eslint-disable-next-line
         // console.log("Query = " + query);
 
         const config = {
-          responseType: "arraybuffer"
+          responseType: "arraybuffer",
+          timeout: 5000
           // maxContentLength: 256,
           // responseEncoding: 'utf8'
         };
 
-        // Add a response interceptor
-        axios.interceptors.response.use(
-          function(response) {
-            // Any status code that lie within the range of 2xx cause this function to trigger
-            // Do something with response data
-
-            // eslint-disable-next-line
-            // console.log("Intercepted.")
-            return response;
-          },
-          function(error) {
-            // Any status codes that falls outside the range of 2xx cause this function to trigger
-            // Do something with response error
-            return Promise.reject(error);
-          }
-        );
-
-        axios.get(query, config).then(response => {
-          // eslint-disable-next-line
-          // console.log("Response: " + this.response_data);
-
-          if (response.data.byteLength == 256) {
-            this.response_data = new Uint8Array(response.data);
-
-            if (this.z_values.length == CYCLES) {
-              this.z_values.shift();
-            }
-
-            this.z_values.push(this.response_data);
-
-            this.tab[0].z = this.z_values;
-
-            this.dummy++;
-          }
-        });
-      }
-      this.cycle = setInterval(this.submitPlcAddress, 250);
-    },
-    fetchData() {
-      clearInterval(this.cycle);
-      if (this.getData) {
         axios
-          .get("http://127.0.0.1:8070/iotgateway/read?ids=Siemens.PLC.Merkers")
-          .then(response => (this.fetchedData = response.data));
+          .get(query, config)
+          .then(response => {
+            // eslint-disable-next-line
+            // console.log("Response: " + this.response_data);
 
-        if (this.fetchedData != null) {
-          if (this.fetchedData.readResults[0].s) {
-            if (this.z_values.length == CYCLES) {
-              this.z_values.shift();
+            if (response.data.byteLength == 256) {
+              this.response_data = new Uint8Array(response.data);
+
+              if (this.z_values.length == CYCLES) {
+                this.z_values.shift();
+              }
+
+              this.z_values.push(this.response_data);
+
+              this.tab[0].z = this.z_values;
+
+              this.dummy++;
             }
-
-            this.z_values.push(JSON.parse(this.fetchedData.readResults[0].v));
-
-            this.tab[0].z = this.z_values;
-
-            this.dummy++;
-          }
-        }
+          })
+          .catch(function(error) {
+            // eslint-disable-next-line
+            console.log(error);
+          });
       }
-      this.cycle = setInterval(this.fetchData, 250);
-    },
-    cancelAutoUpdate() {
-      clearInterval(this.cycle);
     }
   },
   created() {
