@@ -21,7 +21,12 @@
                     v-model="plcAddress"
                     label="Remote PLC IP Address"
                   ></v-text-field>
-                  <v-text-field v-model="slotNr" label="Slot nr"></v-text-field>
+                  <v-text-field
+                    v-on:keyup.enter="connect"
+                    v-model="slotNr"
+                    label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
+                  ></v-text-field>
+                  <v-text-field v-on:keyup.enter="connect" v-model="period" label="Period [ms]"></v-text-field>
                 </v-col>
               </v-row>
               <v-row no-gutters>
@@ -88,6 +93,31 @@ const CYCLES = 256;
 //   ticks: ""
 // };
 
+var interval = {
+  // to keep a reference to all the intervals
+  intervals: new Set(),
+
+  // create another interval
+  make(...args) {
+    var newInterval = setInterval(...args);
+    this.intervals.add(newInterval);
+    return newInterval;
+  },
+
+  // clear a single interval
+  clear(id) {
+    this.intervals.delete(id);
+    return clearInterval(id);
+  },
+
+  // clear all intervals
+  clearAll() {
+    for (var id of this.intervals) {
+      this.clear(id);
+    }
+  }
+};
+
 export default {
   directives: {
     mask
@@ -126,22 +156,31 @@ export default {
     fetchedData: null,
     response_data: null,
     getData: true,
-    cycle: null,
+    // cycle: null,
     connected: false,
-    slotNr: 2
+    slotNr: 2,
+    period: 250
   }),
   beforeDestroy() {
-    clearInterval(this.timer);
+    // clearInterval(this.timer);
+    interval.clearAll();
     this.connected = false;
   },
   methods: {
     disconnect() {
-      clearInterval(this.cycle);
+      // clearInterval(this.cycle);
+      interval.clearAll();
       this.connected = false;
     },
     connect() {
-      clearInterval(this.cycle);
-      this.cycle = setInterval(this.fetchData, 250);
+      // eslint-disable-next-line
+      console.log("connect()");
+
+      // clearInterval(this.cycle);
+      // this.cycle = setInterval(this.fetchData, this.period);
+      interval.clearAll();
+      interval.make(this.fetchData, Number(this.period));
+      this.z_values.length = 0;
     },
     fetchData() {
       this.connected = true;
