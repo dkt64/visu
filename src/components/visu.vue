@@ -6,9 +6,9 @@
       </v-flex>
     </v-layout>
 
-    <v-row no-gutters>
-      <v-col cols="4">
-        <v-card elevation="10" style="margin: 4px">
+    <v-row>
+      <v-col cols="3">
+        <v-card elevation="10">
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="headline mb-1">SIEMENS S7 PLC</v-list-item-title>
@@ -41,26 +41,21 @@
                 >disconnect</v-btn>
               </v-row>
 
-              <v-row no-gutters>
-                <v-list-item>Read nr {{dummy}}</v-list-item>
-              </v-row>
-
-              <!-- <v-row no-gutters>
-                <v-checkbox v-model="getData" :label="`Get Data`" style="margin-left: 8px"></v-checkbox>
-              </v-row>
-
-              <v-card elevation="10">
-                <v-flex mb-12 style="margin: 4px">Info: {{server_message}}</v-flex>
-              </v-card>-->
+              <v-card elevation="10" style="margin-top: 8px">
+                <!-- <v-list-item-title class="headline mb-1">INFO</v-list-item-title> -->
+                <v-checkbox v-model="getData" :label="`Draw data`" style="margin: 14px"></v-checkbox>
+                <v-list-item-subtitle style="margin: 14px">Read nr {{dummy}}</v-list-item-subtitle>
+                <!-- <v-flex mb-12 style="margin: 4px">Info: {{server_message}}</v-flex> -->
+              </v-card>
             </v-list-item-content>
           </v-list-item>
         </v-card>
       </v-col>
 
-      <v-col cols="8">
-        <v-card elevation="10" style="margin: 4px">
-          <Plotly :data="tab" :layout="layout" :options="options"></Plotly>
-        </v-card>
+      <v-col cols="9">
+        <!-- <v-card elevation="10"> -->
+        <Plotly :data="tab" :layout="layout" :options="options"></Plotly>
+        <!-- </v-card> -->
       </v-col>
     </v-row>
 
@@ -128,6 +123,18 @@ var interval = {
 
 // let msgServer;
 
+function ValidateIPaddress(ipaddress) {
+  if (
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+      ipaddress
+    )
+  ) {
+    return true;
+  }
+  alert("You have entered an invalid IP address!");
+  return false;
+}
+
 export default {
   directives: {
     mask
@@ -157,11 +164,11 @@ export default {
     },
     options: {
       autosizable: true,
-      // responsive: true,
+      responsive: true
       // fillFrame: true,
     },
     layout: {
-      // autosize: false,
+      autosize: true,
       paper_bgcolor: "white",
       plot_bgcolor: "white",
       title: {
@@ -170,13 +177,6 @@ export default {
           size: 32
         }
       }
-      // height: window.innerHeight * 0.7
-      // xaxis: xaxisTemplate,
-      // yaxis: yaxisTemplate,
-      // height: window.innerHeight * 2
-      // width: this.props.size.width
-      // height: this.props.size.height
-      // height: this.window.height * 2.0
     },
 
     fetchedData: null,
@@ -197,6 +197,7 @@ export default {
       this.myWindow.width = window.innerWidth;
       this.myWindow.height = window.innerHeight;
       this.layout.height = this.myWindow.height * 0.7;
+      // this.layout.width = document.getElementById("karta").width
 
       // // eslint-disable-next-line
       // console.log(
@@ -210,18 +211,23 @@ export default {
       this.msgServer.close();
     },
     connect() {
-      // eslint-disable-next-line
-      console.log("connect()");
+      if (ValidateIPaddress(this.plcAddress)) {
+        // eslint-disable-next-line
+        console.log("connect() to " + this.plcAddress);
 
-      // clearInterval(this.cycle);
-      // this.cycle = setInterval(this.fetchData, this.period);
+        // clearInterval(this.cycle);
+        // this.cycle = setInterval(this.fetchData, this.period);
 
-      // interval.clearAll();
-      // interval.make(this.fetchData, Number(this.period));
-      // this.fetchData();
-      this.subscribe_event();
-      this.z_values.length = 0;
-      this.connected = true;
+        // interval.clearAll();
+        // interval.make(this.fetchData, Number(this.period));
+        // this.fetchData();
+        this.subscribe_event();
+        this.z_values.length = 0;
+        this.connected = true;
+      } else {
+        // eslint-disable-next-line
+        console.log("Invalid IP address '" + this.plcAddress + "'");
+      }
     },
     fetchData() {
       if (this.getData) {
@@ -278,19 +284,21 @@ export default {
 
       var byteArray = base64js.toByteArray(stringData.content);
 
-      if (this.z_values.length == CYCLES) {
-        this.z_values.shift();
-        // this.y_values.shift();
+      if (this.getData) {
+        if (this.z_values.length == CYCLES) {
+          this.z_values.shift();
+          // this.y_values.shift();
+        }
+
+        this.z_values.push(byteArray);
+        // this.y_values.push(stringData.time);
+
+        this.tab[0].z = this.z_values;
+        // this.tab[0].y = this.y_values;
+
+        // eslint-disable-next-line
+        // console.log(byteArray);
       }
-
-      this.z_values.push(byteArray);
-      // this.y_values.push(stringData.time);
-
-      this.tab[0].z = this.z_values;
-      // this.tab[0].y = this.y_values;
-
-      // eslint-disable-next-line
-      // console.log(byteArray);
     },
     subscribe_event() {
       if (typeof EventSource !== "undefined") {
