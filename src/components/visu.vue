@@ -16,17 +16,13 @@
 
               <v-row no-gutters>
                 <v-col>
+                  <!-- v-on:keyup.enter="connect" -->
+                  <v-text-field v-model="plcAddress" label="Remote PLC IP Address"></v-text-field>
                   <v-text-field
-                    v-on:keyup.enter="connect"
-                    v-model="plcAddress"
-                    label="Remote PLC IP Address"
-                  ></v-text-field>
-                  <v-text-field
-                    v-on:keyup.enter="connect"
                     v-model="slotNr"
                     label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
                   ></v-text-field>
-                  <v-text-field v-on:keyup.enter="connect" v-model="period" label="Period [ms]"></v-text-field>
+                  <v-text-field v-model="period" label="Period [ms]"></v-text-field>
                 </v-col>
               </v-row>
 
@@ -157,7 +153,7 @@ export default {
       height: 0
     },
     options: {
-      autosizable: true,
+      autosizable: true
       // responsive: true
       // fillFrame: true
     },
@@ -170,7 +166,7 @@ export default {
         font: {
           size: 32
         }
-      },
+      }
       // height: window.innerHeight * 0.7
       // xaxis: xaxisTemplate,
       // yaxis: yaxisTemplate,
@@ -206,7 +202,7 @@ export default {
     },
     disconnect() {
       // clearInterval(this.cycle);
-      interval.clearAll();
+      // interval.clearAll();
       this.connected = false;
       this.msgServer.close();
     },
@@ -216,19 +212,24 @@ export default {
 
       // clearInterval(this.cycle);
       // this.cycle = setInterval(this.fetchData, this.period);
-      interval.clearAll();
-      interval.make(this.fetchData, Number(this.period));
+
+      // interval.clearAll();
+      // interval.make(this.fetchData, Number(this.period));
+      // this.fetchData();
+      this.subscribe_event();
       this.z_values.length = 0;
+      this.connected = true;
     },
     fetchData() {
-      this.connected = true;
       if (this.getData) {
         var query =
-          "http://localhost/api/v1/s7?plc_address=" +
+          "http://localhost/api/v1/s7" +
+          "?plc_address=" +
           this.plcAddress +
           "&slot_nr=" +
-          this.slotNr;
-        "&period=" + this.period;
+          this.slotNr +
+          "&period=" +
+          this.period;
 
         // eslint-disable-next-line
         // console.log("Query = " + query);
@@ -266,67 +267,77 @@ export default {
             console.log(error);
           });
       }
-    }
-  },
-  mounted() {
-    if (typeof EventSource !== "undefined") {
-      this.$sse("http://localhost/api/v1/events", { format: "plain" }) // or { format: 'json' }
-        .then(sse => {
-          // Store SSE object at a higher scope
-          this.msgServer = sse;
+    },
+    subscribe_event() {
+      if (typeof EventSource !== "undefined") {
+        this.$sse(
+          // "http://localhost/api/v1/events",
+          "http://localhost/api/v1/s7" +
+            "?plc_address=" +
+            this.plcAddress +
+            "&slot_nr=" +
+            this.slotNr +
+            "&period=" +
+            this.period,
+          { format: "plain" }
+        ) // or { format: 'json' }
+          .then(sse => {
+            // Store SSE object at a higher scope
+            this.msgServer = sse;
 
-          // Catch any errors (ie. lost connections, etc.)
-          sse.onError(e => {
+            // Catch any errors (ie. lost connections, etc.)
+            sse.onError(e => {
+              // eslint-disable-next-line
+              console.error("lost connection; giving up!", e);
+
+              // This is purely for example; EventSource will automatically
+              // attempt to reconnect indefinitely, with no action needed
+              // on your part to resubscribe to events once (if) reconnected
+              sse.close();
+            });
+
+            // Listen for messages without a specified event
+            sse.subscribe("", data => {
+              // eslint-disable-next-line
+              console.log("Received a message w/o an event!", data);
+            });
+
+            // Listen for messages based on their event (in this case, "chat")
+            sse.subscribe("data", message => {
+              // eslint-disable-next-line
+              console.log("Received data: ", message);
+              // this.messages.push(message);
+            });
+
+            // // Unsubscribes from event-less messages after 7 seconds
+            // setTimeout(() => {
+            //   sse.unsubscribe("");
+
+            //   // eslint-disable-next-line
+            //   console.log("Stopped listening to event-less messages!");
+            // }, 7000);
+
+            // // Unsubscribes from chat messages after 7 seconds
+            // setTimeout(() => {
+            //   sse.unsubscribe("data");
+
+            //   // eslint-disable-next-line
+            //   console.log("Stopped listening to data messages!");
+            // }, 5000);
+          })
+          .catch(err => {
+            // When this error is caught, it means the initial connection to the
+            // events server failed.  No automatic attempts to reconnect will be made.
             // eslint-disable-next-line
-            console.error("lost connection; giving up!", e);
-
-            // This is purely for example; EventSource will automatically
-            // attempt to reconnect indefinitely, with no action needed
-            // on your part to resubscribe to events once (if) reconnected
-            sse.close();
+            console.error("Failed to connect to server", err);
           });
-
-          // Listen for messages without a specified event
-          sse.subscribe("", data => {
-            // eslint-disable-next-line
-            console.log("Received a message w/o an event!", data);
-          });
-
-          // Listen for messages based on their event (in this case, "chat")
-          sse.subscribe("chat", message => {
-            // eslint-disable-next-line
-            console.log("Received chat message: ", message);
-            // this.messages.push(message);
-          });
-
-          // Unsubscribes from event-less messages after 7 seconds
-          setTimeout(() => {
-            sse.unsubscribe("");
-
-            // eslint-disable-next-line
-            console.log("Stopped listening to event-less messages!");
-          }, 7000);
-
-          // Unsubscribes from chat messages after 7 seconds
-          setTimeout(() => {
-            sse.unsubscribe("chat");
-
-            // eslint-disable-next-line
-            console.log("Stopped listening to chat messages!");
-          }, 14000);
-        })
-        .catch(err => {
-          // When this error is caught, it means the initial connection to the
-          // events server failed.  No automatic attempts to reconnect will be made.
-          // eslint-disable-next-line
-          console.error("Failed to connect to server", err);
-        });
-    } else {
-      alert(
-        "Your browser does not support Server-sent events! Please upgrade it!"
-      );
-      // eslint-disable-next-line
-      console.error("Connection aborted");
+      } else {
+        alert(
+          "Your browser does not support Server-sent events! Please upgrade it!"
+        );
+        // eslint-disable-next-line
+        console.error("Connection aborted");
+      }
     }
   },
   created() {
