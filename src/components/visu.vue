@@ -42,12 +42,16 @@
               </v-row>
 
               <v-row no-gutters>
+                <v-list-item>Read nr {{dummy}}</v-list-item>
+              </v-row>
+
+              <!-- <v-row no-gutters>
                 <v-checkbox v-model="getData" :label="`Get Data`" style="margin-left: 8px"></v-checkbox>
               </v-row>
 
               <v-card elevation="10">
                 <v-flex mb-12 style="margin: 4px">Info: {{server_message}}</v-flex>
-              </v-card>
+              </v-card>-->
             </v-list-item-content>
           </v-list-item>
         </v-card>
@@ -59,10 +63,6 @@
         </v-card>
       </v-col>
     </v-row>
-
-    <!-- <v-layout text-center wrap>
-      <v-flex mb-4>{{dummy}}</v-flex>
-    </v-layout>-->
 
     <!-- <v-flex mb-4>{{ fetchedData }}</v-flex> -->
   </v-container>
@@ -79,25 +79,25 @@ import { mask } from "vue-the-mask";
 
 const CYCLES = 256;
 
-var xaxisTemplate = {
-  // range: [0, 128],
-  // autorange: true
-  // showgrid: true,
-  // zeroline: false,
-  // linecolor: "black",
-  // showticklabels: false,
-  // ticks: ""
-};
+// var xaxisTemplate = {
+//   // range: [0, 128],
+//   // autorange: true
+//   // showgrid: true,
+//   // zeroline: false,
+//   // linecolor: "black",
+//   // showticklabels: false,
+//   // ticks: ""
+// };
 
-var yaxisTemplate = {
-  // range: [0, CYCLES],
-  // autorange: true
-  // showgrid: true,
-  // zeroline: false,
-  // linecolor: "black",
-  // showticklabels: false,
-  // ticks: ""
-};
+// var yaxisTemplate = {
+//   // range: [0, CYCLES],
+//   // autorange: true
+//   // showgrid: true,
+//   // zeroline: false,
+//   // linecolor: "black",
+//   // showticklabels: false,
+//   // ticks: ""
+// };
 
 var interval = {
   // to keep a reference to all the intervals
@@ -307,6 +307,8 @@ export default {
               // eslint-disable-next-line
               console.log("Received data: ", message);
               // this.messages.push(message);
+
+              this.dummy++
             });
 
             // // Unsubscribes from event-less messages after 7 seconds
