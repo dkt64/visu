@@ -72,12 +72,14 @@
 // import { Plotly } from "vue-plotly";
 import Plotly from "@statnett/vue-plotly";
 import axios from "axios";
-import { mask } from "vue-the-mask";
+import mask from "vue-the-mask";
+// import base64 from "base64-js";
 // import VueSSE from 'vue-sse';
-
 // import * as FormData from 'form-data';
 
-const CYCLES = 256;
+var base64js = require("base64-js");
+
+const CYCLES = 64;
 
 // var xaxisTemplate = {
 //   // range: [0, 128],
@@ -139,6 +141,7 @@ export default {
     mask: "###.###.###.###",
     plcAddress: "",
     z_values: [],
+    y_values: [],
     dummy: 0,
     tab: [
       {
@@ -153,9 +156,9 @@ export default {
       height: 0
     },
     options: {
-      autosizable: true
-      // responsive: true
-      // fillFrame: true
+      autosizable: true,
+      // responsive: true,
+      // fillFrame: true,
     },
     layout: {
       // autosize: false,
@@ -268,6 +271,27 @@ export default {
           });
       }
     },
+    write_data(data) {
+      var stringData = JSON.parse(data);
+
+      // var byteArray = Convert.FromBase64String(stringData);
+
+      var byteArray = base64js.toByteArray(stringData.content);
+
+      if (this.z_values.length == CYCLES) {
+        this.z_values.shift();
+        // this.y_values.shift();
+      }
+
+      this.z_values.push(byteArray);
+      // this.y_values.push(stringData.time);
+
+      this.tab[0].z = this.z_values;
+      // this.tab[0].y = this.y_values;
+
+      // eslint-disable-next-line
+      // console.log(byteArray);
+    },
     subscribe_event() {
       if (typeof EventSource !== "undefined") {
         this.$sse(
@@ -305,10 +329,11 @@ export default {
             // Listen for messages based on their event (in this case, "chat")
             sse.subscribe("data", message => {
               // eslint-disable-next-line
-              console.log("Received data: ", message);
+              // console.log("Received data: ", message);
+              this.write_data(message);
               // this.messages.push(message);
 
-              this.dummy++
+              this.dummy++;
             });
 
             // // Unsubscribes from event-less messages after 7 seconds
