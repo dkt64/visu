@@ -7,7 +7,7 @@
     </v-layout>
 
     <v-row no-gutters>
-      <v-col cols="3">
+      <v-col cols="4">
         <v-card elevation="10" style="margin: 4px">
           <v-list-item>
             <v-list-item-content>
@@ -29,6 +29,7 @@
                   <v-text-field v-on:keyup.enter="connect" v-model="period" label="Period [ms]"></v-text-field>
                 </v-col>
               </v-row>
+
               <v-row no-gutters>
                 <v-btn
                   style="width: 120px; margin: 2px"
@@ -43,6 +44,7 @@
                   :disabled="connected == false"
                 >disconnect</v-btn>
               </v-row>
+
               <v-row no-gutters>
                 <v-checkbox v-model="getData" :label="`Get Data`" style="margin-left: 8px"></v-checkbox>
               </v-row>
@@ -50,9 +52,10 @@
           </v-list-item>
         </v-card>
       </v-col>
-      <v-col cols="9">
+
+      <v-col cols="8">
         <v-card elevation="10" style="margin: 4px">
-          <Plotly :data="tab" :layout="layout"></Plotly>
+          <Plotly :data="tab" :layout="layout" :options="options"></Plotly>
         </v-card>
       </v-col>
     </v-row>
@@ -78,25 +81,25 @@ import { mask } from "vue-the-mask";
 
 const CYCLES = 256;
 
-// var xaxisTemplate = {
-//   range: [0, 128],
-//   autorange: true,
-//   showgrid: true,
-//   zeroline: false,
-//   linecolor: "black",
-//   showticklabels: false,
-//   ticks: ""
-// };
+var xaxisTemplate = {
+  // range: [0, 128],
+  // autorange: true
+  // showgrid: true,
+  // zeroline: false,
+  // linecolor: "black",
+  // showticklabels: false,
+  // ticks: ""
+};
 
-// var yaxisTemplate = {
-//   range: [0, CYCLES],
-//   autorange: true,
-//   showgrid: true,
-//   zeroline: false,
-//   linecolor: "black",
-//   showticklabels: false,
-//   ticks: ""
-// };
+var yaxisTemplate = {
+  // range: [0, CYCLES],
+  // autorange: true
+  // showgrid: true,
+  // zeroline: false,
+  // linecolor: "black",
+  // showticklabels: false,
+  // ticks: ""
+};
 
 var interval = {
   // to keep a reference to all the intervals
@@ -147,8 +150,17 @@ export default {
         type: "heatmap"
       }
     ],
-
+    window: {
+      width: 0,
+      height: 0
+    },
+    options: {
+      autosizable: true,
+      responsive: true,
+      // fillFrame: true
+    },
     layout: {
+      autosize: true,
       paper_bgcolor: "white",
       plot_bgcolor: "white",
       title: {
@@ -156,10 +168,11 @@ export default {
         font: {
           size: 32
         }
-      }
-      // xaxis: xaxisTemplate,
-      // yaxis: yaxisTemplate
-      // height: 600
+      },
+      xaxis: xaxisTemplate,
+      yaxis: yaxisTemplate
+      // height: screen.height * 0.65
+      // width: this.props.size.width
     },
 
     fetchedData: null,
@@ -176,6 +189,17 @@ export default {
     this.connected = false;
   },
   methods: {
+    handleResize() {
+      this.window.width = window.innerWidth;
+      this.window.height = window.innerHeight;
+
+      // this.layout.width = this.window.width * 0.6;
+
+      // eslint-disable-next-line
+      console.log(
+        "window resize: " + this.window.width + " x " + this.window.height
+      );
+    },
     disconnect() {
       // clearInterval(this.cycle);
       interval.clearAll();
@@ -207,7 +231,8 @@ export default {
 
         const config = {
           responseType: "arraybuffer",
-          timeout: this.period
+          // timeout: this.period * 2
+          timeout: 0
           // maxContentLength: 256,
           // responseEncoding: 'utf8'
         };
@@ -241,8 +266,7 @@ export default {
   },
   mounted() {
     if (typeof EventSource !== "undefined") {
-     
-      this.$sse("http://localhost/api/v1/events", { format: 'plain' }) // or { format: 'json' }
+      this.$sse("http://localhost/api/v1/events", { format: "plain" }) // or { format: 'json' }
         .then(sse => {
           // Store SSE object at a higher scope
           this.msgServer = sse;
@@ -250,7 +274,7 @@ export default {
           // Catch any errors (ie. lost connections, etc.)
           sse.onError(e => {
             // eslint-disable-next-line
-            // console.error("lost connection; giving up!", e);
+            console.error("lost connection; giving up!", e);
 
             // This is purely for example; EventSource will automatically
             // attempt to reconnect indefinitely, with no action needed
@@ -305,6 +329,9 @@ export default {
     // eslint-disable-next-line
     console.log("created()....");
 
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+
     // var dx, dy;
     // for (dx = 0; dx < 16; dx++) {
     //   this.tab[0].y.push(dx);
@@ -324,6 +351,9 @@ export default {
     // this.cycle = setInterval(this.fetchData, 100);
 
     // this.$mqtt.subscribe('iotgateway')
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.handleResize);
   }
 };
 </script>
