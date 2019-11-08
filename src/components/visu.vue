@@ -48,6 +48,10 @@
               <v-row no-gutters>
                 <v-checkbox v-model="getData" :label="`Get Data`" style="margin-left: 8px"></v-checkbox>
               </v-row>
+
+              <v-card elevation="10">
+                <v-flex mb-12 style="margin: 4px">Info: {{server_message}}</v-flex>
+              </v-card>
             </v-list-item-content>
           </v-list-item>
         </v-card>
@@ -59,8 +63,6 @@
         </v-card>
       </v-col>
     </v-row>
-
-    <v-flex mb-4>Message: {{server_message}}</v-flex>
 
     <!-- <v-layout text-center wrap>
       <v-flex mb-4>{{dummy}}</v-flex>
@@ -150,17 +152,17 @@ export default {
         type: "heatmap"
       }
     ],
-    window: {
+    myWindow: {
       width: 0,
       height: 0
     },
     options: {
       autosizable: true,
-      responsive: true,
+      responsive: true
       // fillFrame: true
     },
     layout: {
-      autosize: true,
+      // autosize: false,
       paper_bgcolor: "white",
       plot_bgcolor: "white",
       title: {
@@ -169,10 +171,13 @@ export default {
           size: 32
         }
       },
-      xaxis: xaxisTemplate,
-      yaxis: yaxisTemplate
-      // height: screen.height * 0.65
+      // height: window.innerHeight * 0.7
+      // xaxis: xaxisTemplate,
+      // yaxis: yaxisTemplate,
+      // height: window.innerHeight * 2
       // width: this.props.size.width
+      // height: this.props.size.height
+      // height: this.window.height * 2.0
     },
 
     fetchedData: null,
@@ -190,15 +195,14 @@ export default {
   },
   methods: {
     handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight;
+      this.myWindow.width = window.innerWidth;
+      this.myWindow.height = window.innerHeight;
+      this.layout.height = this.myWindow.height * 0.7;
 
-      // this.layout.width = this.window.width * 0.6;
-
-      // eslint-disable-next-line
-      console.log(
-        "window resize: " + this.window.width + " x " + this.window.height
-      );
+      // // eslint-disable-next-line
+      // console.log(
+      //   "window resize: " + this.window.width + " x " + this.window.height
+      // );
     },
     disconnect() {
       // clearInterval(this.cycle);
