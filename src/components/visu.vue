@@ -158,7 +158,7 @@ export default {
     },
     options: {
       autosizable: true,
-      responsive: true
+      // responsive: true
       // fillFrame: true
     },
     layout: {
