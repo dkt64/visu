@@ -326,6 +326,7 @@ export default {
               // attempt to reconnect indefinitely, with no action needed
               // on your part to resubscribe to events once (if) reconnected
               sse.close();
+              this.disconnect();
             });
 
             // Listen for messages without a specified event
@@ -342,6 +343,14 @@ export default {
               // this.messages.push(message);
 
               this.dummy++;
+
+              // // Unsubscribes from chat messages after 7 seconds
+              // setTimeout(() => {
+              //   sse.unsubscribe("data");
+
+              //   // eslint-disable-next-line
+              //   console.log("Stopped listening to data messages!");
+              // }, 2000);
             });
 
             // // Unsubscribes from event-less messages after 7 seconds
