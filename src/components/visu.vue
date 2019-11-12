@@ -22,7 +22,7 @@
                     v-model="slotNr"
                     label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
                   ></v-text-field>
-                  <v-text-field v-model="period" label="Period [ms]"></v-text-field>
+                  <v-text-field v-model="period" label="Period [ms] (0 ms means as fast as possible)"></v-text-field>
                 </v-col>
               </v-row>
 
@@ -185,7 +185,7 @@ export default {
     // cycle: null,
     connected: false,
     slotNr: 2,
-    period: 250
+    period: 0
   }),
   beforeDestroy() {
     // clearInterval(this.timer);
@@ -208,7 +208,9 @@ export default {
       // clearInterval(this.cycle);
       // interval.clearAll();
       this.connected = false;
-      this.msgServer.close();
+      if (this.msgServer != null) {
+        this.msgServer.close();
+      }
     },
     connect() {
       if (ValidateIPaddress(this.plcAddress)) {
@@ -374,6 +376,7 @@ export default {
             // events server failed.  No automatic attempts to reconnect will be made.
             // eslint-disable-next-line
             console.error("Failed to connect to server", err);
+            this.disconnect();
           });
       } else {
         alert(
