@@ -389,7 +389,7 @@ export default {
   },
   created() {
     // eslint-disable-next-line
-    console.log("created()....");
+    console.log("created(plc)....");
 
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
