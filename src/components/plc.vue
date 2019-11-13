@@ -177,7 +177,8 @@ export default {
     },
     options: {
       autosizable: true,
-      responsive: true
+      responsive: true,
+      displayModeBar: true,
       // fillFrame: true,
     },
     layout: {

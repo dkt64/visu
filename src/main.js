@@ -30,9 +30,9 @@ var msgServer = null
 var z_values = []
 var dummy = 0
 
-var plcDataType = {Timestamp:"", IOImage:""}
-var plcData = []
-plcData[0] = plcDataType
+// var plcDataType = {Timestamp:"", IOImage:""}
+var plcData = null
+// plcData[0] = plcDataType
 
 var tab = [
   {

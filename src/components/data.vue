@@ -45,13 +45,15 @@ export default {
       axios
         .get(query, config)
         .then(response => {
-          this.$store.state.plcData = response.data;
-
           // eslint-disable-next-line
           console.log("fetchData()");
 
-          // eslint-disable-next-line
-          console.log("Response: " + response.data);
+          if (response.data != null) {
+            this.$store.state.plcData = response.data;
+
+            // eslint-disable-next-line
+            console.log("Response: " + response.data);
+          }
         })
         .catch(function(error) {
           // eslint-disable-next-line
