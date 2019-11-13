@@ -5,47 +5,52 @@
         <h1 class="display-2 font-weight-bold mb-3">DATA VISUALISATION</h1>
       </v-flex>
     </v-layout>
-    <v-card class="mx-auto" max-width="1200" tile>
+    <v-card elevation="10" class="mx-auto" max-width="1440" tile>
       <v-list-item>
-        <v-list-item-title class="headline mb-1">Machine Timeline</v-list-item-title>
+        <v-list-item-title class="headline mb-1">Machine Timeline:</v-list-item-title>
         <v-spacer />
-        <v-btn @click="fetchData" color="primary" max-width="200px">Read data...</v-btn>
+        <v-btn @click="fetchData" color="primary" max-width="300px">Read data...</v-btn>
+        <v-btn
+          @click="clearData"
+          color="warning"
+          max-width="300px"
+          style="margin-left: 10px"
+        >Clear data...</v-btn>
       </v-list-item>
-      <v-list-item>
-        <v-list-item-content>
-          <v-list-item>item 1</v-list-item>
-          <v-list-item>item 2</v-list-item>
-          <v-list-item>item 3</v-list-item>
-        </v-list-item-content>
-      </v-list-item>
+      <div>{{ $store.state.plcData }}</div>
+      <!-- <v-list-item>{{ $store.state.plcData }}</v-list-item> -->
     </v-card>
   </v-container>
 </template>
 
 <script>
 import axios from "axios";
+var base64js = require("base64-js");
 
 export default {
   components: {},
   data: () => ({}),
   beforeDestroy() {},
   methods: {
+    clearData() {
+      this.$store.state.plcData = "";
+    },
     fetchData() {
       var query = "http://localhost/api/v1/data";
 
       const config = {
-        // responseType: "arraybuffer",
-        // timeout: this.period * 2
-        timeout: 2000
-        // maxContentLength: 256,
-        // responseEncoding: 'utf8'
+        timeout: 10000
       };
 
       axios
         .get(query, config)
         .then(response => {
+          this.$store.state.plcData = response.data;
+
           // eslint-disable-next-line
           console.log("Response: " + response.data);
+
+          console.log("fetchData()");
         })
         .catch(function(error) {
           // eslint-disable-next-line

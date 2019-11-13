@@ -47,7 +47,7 @@
               <v-card elevation="10" style="margin-top: 8px">
                 <!-- <v-list-item-title class="headline mb-1">INFO</v-list-item-title> -->
                 <v-checkbox v-model="getData" :label="`Draw data`" style="margin: 14px"></v-checkbox>
-                <v-list-item-subtitle style="margin: 14px">Read nr {{dummy}}</v-list-item-subtitle>
+                <v-list-item-subtitle style="margin: 14px">Counter {{$store.state.dummy}}</v-list-item-subtitle>
                 <!-- <v-flex mb-12 style="margin: 4px">Info: {{server_message}}</v-flex> -->
               </v-card>
             </v-list-item-content>
@@ -171,7 +171,6 @@ export default {
     server_message: null,
     mask: "###.###.###.###",
     y_values: [],
-    dummy: 0,
     myWindow: {
       width: 0,
       height: 0
@@ -198,7 +197,7 @@ export default {
     getData: true,
     // cycle: null,
     slotNr: 2,
-    period: 0
+    period: 250
   }),
   beforeDestroy() {
     // clearInterval(this.timer);
@@ -225,7 +224,7 @@ export default {
         this.$store.state.msgServer.close();
       }
       // eslint-disable-next-line
-      console.log("event.clearAll() of " + event);
+      // console.log("event.clearAll() of " + event);
       // eslint-disable-next-line
       console.log("disconnect() of " + this.$store.state.plcAddress);
     },
@@ -299,7 +298,7 @@ export default {
               // attempt to reconnect indefinitely, with no action needed
               // on your part to resubscribe to events once (if) re$store.state.connected
               sse.close();
-              // this.disconnect();
+              this.disconnect();
             });
 
             // Listen for messages without a specified event
@@ -315,7 +314,7 @@ export default {
               this.write_data(message);
               // this.messages.push(message);
 
-              this.dummy++;
+              this.$store.state.dummy++;
               // // Unsubscribes from chat messages after 7 seconds
               // setTimeout(() => {
               //   sse.unsubscribe("data");

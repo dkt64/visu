@@ -22,11 +22,18 @@ const routes = [
 
 const router = new Router({ mode: 'history', routes })
 
+
 // Global data
 var connected = false
 var plcAddress = ""
 var msgServer = null
 var z_values = []
+var dummy = 0
+
+var plcDataType = {Timestamp:"", IOImage:""}
+var plcData = []
+plcData[0] = plcDataType
+
 var tab = [
   {
     z: [],
@@ -40,6 +47,8 @@ const store = new Vuex.Store({
       plcAddress,
       msgServer,
       z_values,
+      dummy,
+      plcData,
       tab,
     }
   })
