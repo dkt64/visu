@@ -32,12 +32,12 @@
                   class="mr-4"
                   color="success"
                   @click="connect"
-                  :disabled="connected == true"
+                  :disabled="$store.state.connected == true"
                 >connect</v-btn>
                 <v-btn
                   style="width: 120px;margin: 2px"
                   @click="disconnect"
-                  :disabled="connected == false"
+                  :disabled="$store.state.connected == false"
                 >disconnect</v-btn>
               </v-row>
 
@@ -183,14 +183,13 @@ export default {
     response_data: null,
     getData: true,
     // cycle: null,
-    connected: false,
     slotNr: 2,
     period: 0
   }),
   beforeDestroy() {
     // clearInterval(this.timer);
-    interval.clearAll();
-    this.connected = false;
+    // interval.clearAll();
+    // this.$store.state.connected = false;
   },
   methods: {
     handleResize() {
@@ -207,7 +206,7 @@ export default {
     disconnect() {
       // clearInterval(this.cycle);
       // interval.clearAll();
-      this.connected = false;
+      this.$store.state.connected = false;
       if (this.msgServer != null) {
         this.msgServer.close();
       }
@@ -225,7 +224,7 @@ export default {
         // this.fetchData();
         this.subscribe_event();
         this.z_values.length = 0;
-        this.connected = true;
+        this.$store.state.connected = true;
       } else {
         // eslint-disable-next-line
         console.log("Invalid IP address '" + this.plcAddress + "'");
@@ -326,7 +325,7 @@ export default {
 
               // This is purely for example; EventSource will automatically
               // attempt to reconnect indefinitely, with no action needed
-              // on your part to resubscribe to events once (if) reconnected
+              // on your part to resubscribe to events once (if) re$store.state.connected
               sse.close();
               this.disconnect();
             });
