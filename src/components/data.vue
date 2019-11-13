@@ -9,7 +9,7 @@
       <v-list-item>
         <v-list-item-title class="headline mb-1">Machine Timeline</v-list-item-title>
         <v-spacer />
-        <v-btn color="primary" max-width="200px">Read data...</v-btn>
+        <v-btn @click="fetchData" color="primary" max-width="200px">Read data...</v-btn>
       </v-list-item>
       <v-list-item>
         <v-list-item-content>
@@ -23,11 +23,36 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   components: {},
   data: () => ({}),
   beforeDestroy() {},
-  methods: {},
+  methods: {
+    fetchData() {
+      var query = "http://localhost/api/v1/data";
+
+      const config = {
+        // responseType: "arraybuffer",
+        // timeout: this.period * 2
+        timeout: 2000
+        // maxContentLength: 256,
+        // responseEncoding: 'utf8'
+      };
+
+      axios
+        .get(query, config)
+        .then(response => {
+          // eslint-disable-next-line
+          console.log("Response: " + response.data);
+        })
+        .catch(function(error) {
+          // eslint-disable-next-line
+          console.log(error);
+        });
+    }
+  },
   created() {
     // eslint-disable-next-line
     console.log("created(data)....");

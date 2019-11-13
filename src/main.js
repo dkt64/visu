@@ -17,18 +17,32 @@ Vue.use(Vuex)
 
 const routes = [
   { path: '/', name: "plc", component: Plc },
-  { path: '/data', name: "data", component: Data},
+  { path: '/data', name: "data", component: Data },
 ]
 
 const router = new Router({ mode: 'history', routes })
 
+// Global data
 var connected = false
+var plcAddress = ""
+var msgServer = null
+var z_values = []
+var tab = [
+  {
+    z: [],
+    type: "heatmap"
+  }
+]
 
 const store = new Vuex.Store({
-  state: {
-    connected,
-  }
-})
+    state: {
+      connected,
+      plcAddress,
+      msgServer,
+      z_values,
+      tab,
+    }
+  })
 
 new Vue({
   vuetify,

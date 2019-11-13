@@ -17,12 +17,15 @@
               <v-row no-gutters>
                 <v-col>
                   <!-- v-on:keyup.enter="connect" -->
-                  <v-text-field v-model="plcAddress" label="Remote PLC IP Address"></v-text-field>
+                  <v-text-field v-model="$store.state.plcAddress" label="Remote PLC IP Address"></v-text-field>
                   <v-text-field
                     v-model="slotNr"
                     label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
                   ></v-text-field>
-                  <v-text-field v-model="period" label="Period [ms] (0 ms means as fast as possible)"></v-text-field>
+                  <v-text-field
+                    v-model="period"
+                    label="Period [ms] (0 ms means as fast as possible)"
+                  ></v-text-field>
                 </v-col>
               </v-row>
 
@@ -54,7 +57,7 @@
 
       <v-col cols="9">
         <!-- <v-card elevation="10"> -->
-        <Plotly :data="tab" :layout="layout" :options="options"></Plotly>
+        <Plotly :data="$store.state.tab" :layout="layout" :options="options"></Plotly>
         <!-- </v-card> -->
       </v-col>
     </v-row>
@@ -64,15 +67,13 @@
 </template>
 
 <script>
-// import { Plotly } from "vue-plotly";
 import Plotly from "@statnett/vue-plotly";
-import axios from "axios";
-import mask from "vue-the-mask";
+var base64js = require("base64-js");
+// import { Plotly } from "vue-plotly";
+// import mask from "vue-the-mask";
 // import base64 from "base64-js";
 // import VueSSE from 'vue-sse';
 // import * as FormData from 'form-data';
-
-var base64js = require("base64-js");
 
 const CYCLES = 64;
 
@@ -96,32 +97,56 @@ const CYCLES = 64;
 //   // ticks: ""
 // };
 
-var interval = {
-  // to keep a reference to all the intervals
-  intervals: new Set(),
+// var interval = {
+//   // to keep a reference to all the intervals
+//   intervals: new Set(),
 
-  // create another interval
-  make(...args) {
-    var newInterval = setInterval(...args);
-    this.intervals.add(newInterval);
-    return newInterval;
-  },
+//   // create another interval
+//   make(...args) {
+//     var newInterval = setInterval(...args);
+//     this.intervals.add(newInterval);
+//     return newInterval;
+//   },
 
-  // clear a single interval
-  clear(id) {
-    this.intervals.delete(id);
-    return clearInterval(id);
-  },
+//   // clear a single interval
+//   clear(id) {
+//     this.intervals.delete(id);
+//     return clearInterval(id);
+//   },
 
-  // clear all intervals
-  clearAll() {
-    for (var id of this.intervals) {
-      this.clear(id);
-    }
-  }
-};
+//   // clear all intervals
+//   clearAll() {
+//     for (var id of this.intervals) {
+//       this.clear(id);
+//     }
+//   }
+// };
 
-// let msgServer;
+// var event = {
+//   // to keep a reference to all the intervals
+//   events: new Set(),
+
+//   // create another interval
+//   make(...args) {
+//     var newEvent = args;
+//     this.events.add(newEvent);
+//     return newEvent;
+//   },
+
+//   // clear a single interval
+//   clear(id) {
+//     this.events.delete(id);
+//   },
+
+//   // clear all intervals
+//   clearAll() {
+//     for (var id of this.events) {
+//       this.clear(id);
+//     }
+//   }
+// };
+
+// let $store.state.$store.state.msgServer;
 
 function ValidateIPaddress(ipaddress) {
   if (
@@ -137,27 +162,16 @@ function ValidateIPaddress(ipaddress) {
 
 export default {
   directives: {
-    mask
+    // mask
   },
   components: {
     Plotly
   },
   data: () => ({
-    msgServer: null,
     server_message: null,
     mask: "###.###.###.###",
-    plcAddress: "",
-    z_values: [],
     y_values: [],
     dummy: 0,
-    tab: [
-      {
-        // x: [],
-        // y: [],
-        z: [],
-        type: "heatmap"
-      }
-    ],
     myWindow: {
       width: 0,
       height: 0
@@ -205,16 +219,20 @@ export default {
     },
     disconnect() {
       // clearInterval(this.cycle);
-      // interval.clearAll();
+      // event.clearAll();
       this.$store.state.connected = false;
-      if (this.msgServer != null) {
-        this.msgServer.close();
+      if (this.$store.state.msgServer != null) {
+        this.$store.state.msgServer.close();
       }
+      // eslint-disable-next-line
+      console.log("event.clearAll() of " + event);
+      // eslint-disable-next-line
+      console.log("disconnect() of " + this.$store.state.plcAddress);
     },
     connect() {
-      if (ValidateIPaddress(this.plcAddress)) {
+      if (ValidateIPaddress(this.$store.state.plcAddress)) {
         // eslint-disable-next-line
-        console.log("connect() to " + this.plcAddress);
+        console.log("connect() to " + this.$store.state.plcAddress);
 
         // clearInterval(this.cycle);
         // this.cycle = setInterval(this.fetchData, this.period);
@@ -223,59 +241,13 @@ export default {
         // interval.make(this.fetchData, Number(this.period));
         // this.fetchData();
         this.subscribe_event();
-        this.z_values.length = 0;
+        this.$store.state.z_values.length = 0;
         this.$store.state.connected = true;
       } else {
         // eslint-disable-next-line
-        console.log("Invalid IP address '" + this.plcAddress + "'");
-      }
-    },
-    fetchData() {
-      if (this.getData) {
-        var query =
-          "http://localhost/api/v1/s7" +
-          "?plc_address=" +
-          this.plcAddress +
-          "&slot_nr=" +
-          this.slotNr +
-          "&period=" +
-          this.period;
-
-        // eslint-disable-next-line
-        // console.log("Query = " + query);
-
-        const config = {
-          responseType: "arraybuffer",
-          // timeout: this.period * 2
-          timeout: 0
-          // maxContentLength: 256,
-          // responseEncoding: 'utf8'
-        };
-
-        axios
-          .get(query, config)
-          .then(response => {
-            // eslint-disable-next-line
-            // console.log("Response: " + this.response_data);
-
-            if (response.data.byteLength == 256) {
-              this.response_data = new Uint8Array(response.data);
-
-              if (this.z_values.length == CYCLES) {
-                this.z_values.shift();
-              }
-
-              this.z_values.push(this.response_data);
-
-              this.tab[0].z = this.z_values;
-
-              this.dummy++;
-            }
-          })
-          .catch(function(error) {
-            // eslint-disable-next-line
-            console.log(error);
-          });
+        console.log(
+          "Invalid IP address '" + this.$store.state.plcAddress + "'"
+        );
       }
     },
     write_data(data) {
@@ -286,16 +258,16 @@ export default {
       var byteArray = base64js.toByteArray(stringData.content);
 
       if (this.getData) {
-        if (this.z_values.length == CYCLES) {
-          this.z_values.shift();
+        if (this.$store.state.z_values.length == CYCLES) {
+          this.$store.state.z_values.shift();
           // this.y_values.shift();
         }
 
-        this.z_values.push(byteArray);
+        this.$store.state.z_values.push(byteArray);
         // this.y_values.push(stringData.time);
 
-        this.tab[0].z = this.z_values;
-        // this.tab[0].y = this.y_values;
+        this.$store.state.tab[0].z = this.$store.state.z_values;
+        // this.$store.state.tab[0].y = this.y_values;
 
         // eslint-disable-next-line
         // console.log(byteArray);
@@ -307,7 +279,7 @@ export default {
           // "http://localhost/api/v1/events",
           "http://localhost/api/v1/s7" +
             "?plc_address=" +
-            this.plcAddress +
+            this.$store.state.plcAddress +
             "&slot_nr=" +
             this.slotNr +
             "&period=" +
@@ -316,7 +288,7 @@ export default {
         ) // or { format: 'json' }
           .then(sse => {
             // Store SSE object at a higher scope
-            this.msgServer = sse;
+            this.$store.state.msgServer = sse;
 
             // Catch any errors (ie. lost connections, etc.)
             sse.onError(e => {
@@ -327,7 +299,7 @@ export default {
               // attempt to reconnect indefinitely, with no action needed
               // on your part to resubscribe to events once (if) re$store.state.connected
               sse.close();
-              this.disconnect();
+              // this.disconnect();
             });
 
             // Listen for messages without a specified event
@@ -344,7 +316,6 @@ export default {
               // this.messages.push(message);
 
               this.dummy++;
-
               // // Unsubscribes from chat messages after 7 seconds
               // setTimeout(() => {
               //   sse.unsubscribe("data");
@@ -375,7 +346,7 @@ export default {
             // events server failed.  No automatic attempts to reconnect will be made.
             // eslint-disable-next-line
             console.error("Failed to connect to server", err);
-            this.disconnect();
+            // this.disconnect();
           });
       } else {
         alert(
@@ -395,10 +366,10 @@ export default {
 
     // var dx, dy;
     // for (dx = 0; dx < 16; dx++) {
-    //   this.tab[0].y.push(dx);
+    //   this.$store.state.tab[0].y.push(dx);
     // }
     // for (dx = 0; dx < 128; dx++) {
-    //   this.tab[0].x.push(dx);
+    //   this.$store.state.tab[0].x.push(dx);
     // }
 
     // for (dx = 0; dx < 16; dx++) {
@@ -406,7 +377,7 @@ export default {
     //   for (dy = 0; dy < 128; dy++) {
     //     arr[dy] = Math.random() * 256
     //   }
-    //   z_values.push(arr);
+    //   $store.state.z_values.push(arr);
     // }
 
     // this.cycle = setInterval(this.fetchData, 100);
