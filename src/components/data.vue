@@ -25,7 +25,7 @@
 
 <script>
 import axios from "axios";
-var base64js = require("base64-js");
+// var base64js = require("base64-js");
 
 export default {
   components: {},
@@ -48,9 +48,10 @@ export default {
           this.$store.state.plcData = response.data;
 
           // eslint-disable-next-line
-          console.log("Response: " + response.data);
-
           console.log("fetchData()");
+
+          // eslint-disable-next-line
+          console.log("Response: " + response.data);
         })
         .catch(function(error) {
           // eslint-disable-next-line
