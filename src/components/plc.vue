@@ -346,7 +346,7 @@ export default {
             // events server failed.  No automatic attempts to reconnect will be made.
             // eslint-disable-next-line
             console.error("Failed to connect to server", err);
-            // this.disconnect();
+            this.disconnect();
           });
       } else {
         alert(
