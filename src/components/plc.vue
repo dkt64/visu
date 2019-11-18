@@ -7,7 +7,7 @@
     </v-layout>
 
     <v-row>
-      <v-col cols="3">
+      <v-col cols="2">
         <v-card elevation="10">
           <v-list-item>
             <v-list-item-content>
@@ -31,14 +31,14 @@
 
               <v-row no-gutters>
                 <v-btn
-                  style="width: 120px; margin: 2px"
+                  style="width: 110px; margin: 2px"
                   class="mr-4"
                   color="success"
                   @click="connect"
                   :disabled="$store.state.connected == true"
                 >connect</v-btn>
                 <v-btn
-                  style="width: 120px;margin: 2px"
+                  style="width: 110px;margin: 2px"
                   @click="disconnect"
                   :disabled="$store.state.connected == false"
                 >disconnect</v-btn>
@@ -55,9 +55,14 @@
         </v-card>
       </v-col>
 
-      <v-col cols="9">
+      <v-col cols="6">
         <!-- <v-card elevation="10"> -->
-        <Plotly :data="$store.state.tab" :layout="layout" :options="options"></Plotly>
+        <Plotly :data="$store.state.tab1" :layout="layout1" :options="options1"></Plotly>
+        <!-- </v-card> -->
+      </v-col>
+      <v-col cols="4">
+        <!-- <v-card elevation="10"> -->
+        <Plotly :data="$store.state.tab2" :layout="layout2" :options="options2"></Plotly>
         <!-- </v-card> -->
       </v-col>
     </v-row>
@@ -175,21 +180,57 @@ export default {
       width: 0,
       height: 0
     },
-    options: {
+    options1: {
       autosizable: true,
       responsive: true,
-      displayModeBar: true,
+      displayModeBar: true
       // fillFrame: true,
     },
-    layout: {
+    layout1: {
       autosize: true,
-      paper_bgcolor: "white",
-      plot_bgcolor: "white",
+      paper_bgcolor: "#EEE",
+      plot_bgcolor: "#F8F3",
       title: {
         text: "PLC streaming data",
         font: {
           size: 32
         }
+      }
+    },
+    options2: {
+      autosizable: true,
+      responsive: true,
+      displayModeBar: true
+      // fillFrame: true,
+    },
+    layout2: {
+      // range: [0, 256],
+      autosize: true,
+      paper_bgcolor: "#DDD",
+      plot_bgcolor: "#FF83",
+      title: {
+        text: "Values range live map",
+        font: {
+          size: 32
+        }
+      },
+      xaxis: {
+        // range: [0, 256],
+        autorange: true
+        // showgrid: true,
+        // zeroline: false,
+        // linecolor: "black",
+        // showticklabels: false,
+        // ticks: ""
+      },
+      yaxis: {
+        // range: [0, 256],
+        autorange: true
+        // showgrid: true,
+        // zeroline: false,
+        // linecolor: "black",
+        // showticklabels: false,
+        // ticks: ""
       }
     },
 
@@ -209,7 +250,7 @@ export default {
     handleResize() {
       this.myWindow.width = window.innerWidth;
       this.myWindow.height = window.innerHeight;
-      this.layout.height = this.myWindow.height * 0.7;
+      // this.layout.height = this.myWindow.height * 0.7;
       // this.layout.width = document.getElementById("karta").width
 
       // // eslint-disable-next-line
@@ -250,6 +291,24 @@ export default {
         );
       }
     },
+    write_stats(data) {
+      var stringData = JSON.parse(data);
+
+      // eslint-disable-next-line
+      // console.log("Received stats:", stringData.content);
+
+      // var z_values = [];
+      // var index
+      // for (index = 0; index < 256; index) {
+      //   var byteArray = base64js.toByteArray(stringData.content[index]);
+      //   this.$store.state.z_values.push(byteArray);
+
+      // }
+
+      if (this.getData) {
+        this.$store.state.tab2[0].z = stringData.content;
+      }
+    },
     write_data(data) {
       var stringData = JSON.parse(data);
 
@@ -266,9 +325,9 @@ export default {
         this.$store.state.z_values.push(byteArray);
         // this.y_values.push(stringData.time);
 
-        this.$store.state.tab[0].z = this.$store.state.z_values;
-        // this.$store.state.tab[0].y = this.y_values;
-
+        this.$store.state.tab1[0].z = this.$store.state.z_values;
+        // this.$store.state.tab1[0].y = this.y_values;
+        // this.$store.state.tab1[0].y 2 this.y_values;
         // eslint-disable-next-line
         // console.log(byteArray);
       }
@@ -325,6 +384,24 @@ export default {
               // }, 2000);
             });
 
+            // Listen for messages based on their event (in this case, "chat")
+            sse.subscribe("stats", message => {
+              this.write_stats(message);
+
+              // eslint-disable-next-line
+              // console.log("Received data: ", message);
+              // this.messages.push(message);
+
+              // this.$store.state.dummy++;
+              // // Unsubscribes from chat messages after 7 seconds
+              // setTimeout(() => {
+              //   sse.unsubscribe("data");
+
+              //   // eslint-disable-next-line
+              //   console.log("Stopped listening to data messages!");
+              // }, 2000);
+            });
+
             // // Unsubscribes from event-less messages after 7 seconds
             // setTimeout(() => {
             //   sse.unsubscribe("");
@@ -364,14 +441,24 @@ export default {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
 
+    var dx, dy;
+    for (dx = 0; dx < 256; dx++) {
+      var arr = new Array(256);
+      for (dy = 0; dy < 256; dy++) {
+        arr[dy] = Math.random() * 256;
+        // arr[dy] = dy*dx/2;
+      }
+      this.$store.state.tab2[0].z.push(arr);
+    }
+
     // var dx, dy;
     // for (dx = 0; dx < 16; dx++) {
-    //   this.$store.state.tab[0].y.push(dx);
+    //   this.$store.state.tab1[0].y.push(dx);
+    //   this.$store.state.tab1[0].y.pu2h(dx);
     // }
-    // for (dx = 0; dx < 128; dx++) {
-    //   this.$store.state.tab[0].x.push(dx);
+    //   this.$store.state.tab1[0].x.push(dx);
+    //   this.$store.state.tab1[0].x.pu2h(dx);
     // }
-
     // for (dx = 0; dx < 16; dx++) {
     //   var arr = new Array(128);
     //   for (dy = 0; dy < 128; dy++) {

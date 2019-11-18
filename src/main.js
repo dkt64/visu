@@ -34,7 +34,14 @@ var dummy = 0
 var plcData = null
 // plcData[0] = plcDataType
 
-var tab = [
+var tab1 = [
+  {
+    z: [],
+    type: "heatmap"
+  }
+]
+
+var tab2 = [
   {
     z: [],
     type: "heatmap"
@@ -49,7 +56,8 @@ const store = new Vuex.Store({
       z_values,
       dummy,
       plcData,
-      tab,
+      tab1,
+      tab2,
     }
   })
 
