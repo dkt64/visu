@@ -29,6 +29,7 @@ var plcAddress = ""
 var msgServer = null
 var z_values = []
 var dummy = 0
+var cycles = []
 
 // var plcDataType = {Timestamp:"", IOImage:""}
 var plcData = null
@@ -58,6 +59,7 @@ const store = new Vuex.Store({
       plcData,
       tab1,
       tab2,
+      cycles,
     }
   })
 

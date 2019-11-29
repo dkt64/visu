@@ -45,10 +45,8 @@
               </v-row>
 
               <v-card elevation="10" style="margin-top: 8px">
-                <!-- <v-list-item-title class="headline mb-1">INFO</v-list-item-title> -->
                 <v-checkbox v-model="getData" :label="`Draw data`" style="margin: 14px"></v-checkbox>
                 <v-list-item-subtitle style="margin: 14px">Counter {{$store.state.dummy}}</v-list-item-subtitle>
-                <!-- <v-flex mb-12 style="margin: 4px">Info: {{server_message}}</v-flex> -->
               </v-card>
             </v-list-item-content>
           </v-list-item>
@@ -65,6 +63,16 @@
         <Plotly :data="$store.state.tab2" :layout="layout2" :options="options2"></Plotly>
         <!-- </v-card> -->
       </v-col>
+    </v-row>
+    <v-row>
+      <v-card elevation="10" style="margin-top: 8px">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title class="headline mb-1">MACHINE CYCLES FOUND</v-list-item-title>
+            <v-list-item-subtitle>{{$store.state.cycles}}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
     </v-row>
 
     <!-- <v-flex mb-4>{{ fetchedData }}</v-flex> -->
@@ -291,6 +299,26 @@ export default {
         );
       }
     },
+    write_cycles(data) {
+      var stringData = JSON.parse(data);
+
+      // eslint-disable-next-line
+      console.log("Received cycles:", stringData.content);
+
+      // var z_values = [];
+      // var index
+      // for (index = 0; index < 256; index) {
+      //   var byteArray = base64js.toByteArray(stringData.content[index]);
+      //   this.$store.state.z_values.push(byteArray);
+
+      // }
+
+      // stringData.content.shift();
+
+      if (this.getData) {
+        this.$store.state.cycles = stringData.content;
+      }
+    },
     write_stats(data) {
       var stringData = JSON.parse(data);
 
@@ -304,6 +332,8 @@ export default {
       //   this.$store.state.z_values.push(byteArray);
 
       // }
+
+      // stringData.content.shift();
 
       if (this.getData) {
         this.$store.state.tab2[0].z = stringData.content;
@@ -387,6 +417,24 @@ export default {
             // Listen for messages based on their event (in this case, "chat")
             sse.subscribe("stats", message => {
               this.write_stats(message);
+
+              // eslint-disable-next-line
+              // console.log("Received data: ", message);
+              // this.messages.push(message);
+
+              // this.$store.state.dummy++;
+              // // Unsubscribes from chat messages after 7 seconds
+              // setTimeout(() => {
+              //   sse.unsubscribe("data");
+
+              //   // eslint-disable-next-line
+              //   console.log("Stopped listening to data messages!");
+              // }, 2000);
+            });
+
+            // Listen for messages based on their event (in this case, "chat")
+            sse.subscribe("cycles", message => {
+              this.write_cycles(message);
 
               // eslint-disable-next-line
               // console.log("Received data: ", message);
