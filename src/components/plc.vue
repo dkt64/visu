@@ -65,11 +65,11 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-card elevation="10" style="margin-top: 8px">
+      <v-card elevation="10" style="margin-left: 12px">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="headline mb-1">MACHINE CYCLES FOUND</v-list-item-title>
-            <v-list-item-subtitle>{{$store.state.cycles}}</v-list-item-subtitle>
+            <v-list-item-subtitle>{{$store.state.cycles}} ms</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </v-card>
@@ -489,15 +489,15 @@ export default {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
 
-    var dx, dy;
-    for (dx = 0; dx < 256; dx++) {
-      var arr = new Array(256);
-      for (dy = 0; dy < 256; dy++) {
-        arr[dy] = Math.random() * 256;
-        // arr[dy] = dy*dx/2;
-      }
-      this.$store.state.tab2[0].z.push(arr);
-    }
+    // var dx, dy;
+    // for (dx = 0; dx < 256; dx++) {
+    //   var arr = new Array(256);
+    //   for (dy = 0; dy < 256; dy++) {
+    //     arr[dy] = Math.random() * 256;
+    //     // arr[dy] = dy*dx/2;
+    //   }
+    //   this.$store.state.tab2[0].z.push(arr);
+    // }
 
     // var dx, dy;
     // for (dx = 0; dx < 16; dx++) {
