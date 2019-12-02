@@ -81,7 +81,7 @@
 
 <script>
 import Plotly from "@statnett/vue-plotly";
-var base64js = require("base64-js");
+// var base64js = require("base64-js");
 // import { Plotly } from "vue-plotly";
 // import mask from "vue-the-mask";
 // import base64 from "base64-js";
@@ -344,7 +344,12 @@ export default {
 
       // var byteArray = Convert.FromBase64String(stringData);
 
-      var byteArray = base64js.toByteArray(stringData.content);
+      // // eslint-disable-next-line
+      // console.log("Received data:", data);
+      // // eslint-disable-next-line
+      // console.log("JSON data:", stringData.content);
+
+      // var byteArray = base64js.toByteArray(stringData.content);
 
       if (this.getData) {
         if (this.$store.state.z_values.length == CYCLES) {
@@ -352,7 +357,7 @@ export default {
           // this.y_values.shift();
         }
 
-        this.$store.state.z_values.push(byteArray);
+        this.$store.state.z_values.push(stringData.content);
         // this.y_values.push(stringData.time);
 
         this.$store.state.tab1[0].z = this.$store.state.z_values;
