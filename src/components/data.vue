@@ -7,7 +7,7 @@
     </v-layout>
     <v-card elevation="10" class="mx-auto" max-width="1440" tile>
       <v-list-item>
-        <v-list-item-title class="headline mb-1">Machine Timeline:</v-list-item-title>
+        <v-list-item-title class="headline mb-1">Machine Data Mask, States and Transitions:</v-list-item-title>
         <v-spacer />
         <v-btn @click="fetchData" color="primary" max-width="300px">Read data...</v-btn>
         <v-btn

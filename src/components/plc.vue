@@ -83,6 +83,7 @@
 import Plotly from "@statnett/vue-plotly";
 // var base64js = require("base64-js");
 // import { Plotly } from "vue-plotly";
+// const { Plotly } = require("vue-plotly");
 // import mask from "vue-the-mask";
 // import base64 from "base64-js";
 // import VueSSE from 'vue-sse';
@@ -197,8 +198,8 @@ export default {
     },
     layout1: {
       autosize: true,
-      paper_bgcolor: "#EEE",
-      plot_bgcolor: "#F8F3",
+      // paper_bgcolor: "#EEE",
+      // plot_bgcolor: "#F8F3",
       title: {
         text: "PLC streaming data",
         font: {
@@ -215,8 +216,8 @@ export default {
     layout2: {
       // range: [0, 256],
       autosize: true,
-      paper_bgcolor: "#DDD",
-      plot_bgcolor: "#FF83",
+      // paper_bgcolor: "#DDD",
+      // plot_bgcolor: "#FF83",
       title: {
         text: "Values range live map",
         font: {

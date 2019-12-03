@@ -5,19 +5,23 @@ import axios from 'axios';
 import Router from 'vue-router'
 import VueSSE from 'vue-sse';
 import Vuex from 'vuex'
+import babylon from 'vue-babylonjs'
 
 import Plc from './components/plc'
 import Data from './components/data'
+import Trans from './components/trans'
 
 Vue.config.productionTip = false
 
 Vue.use(Router)
-Vue.use(VueSSE);
+Vue.use(VueSSE)
 Vue.use(Vuex)
+Vue.use(babylon)
 
 const routes = [
   { path: '/', name: "plc", component: Plc },
   { path: '/data', name: "data", component: Data },
+  { path: '/trans', name: "trans", component: Trans },
 ]
 
 const router = new Router({ mode: 'history', routes })
@@ -31,9 +35,8 @@ var z_values = []
 var dummy = 0
 var cycles = []
 
-// var plcDataType = {Timestamp:"", IOImage:""}
 var plcData = null
-// plcData[0] = plcDataType
+var transData = null
 
 var tab1 = [
   {
@@ -64,6 +67,7 @@ const store = new Vuex.Store({
       z_values,
       dummy,
       plcData,
+      transData,
       tab1,
       tab2,
       cycles,

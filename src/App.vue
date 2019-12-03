@@ -20,6 +20,9 @@
           <v-tab to="/data">
             <router-link to="/data" style="text-decoration: none">Data</router-link>
           </v-tab>
+          <v-tab to="/trans">
+            <router-link to="/trans" style="text-decoration: none">Transitions</router-link>
+          </v-tab>
         </v-tabs>
       </template>
     </v-app-bar>
