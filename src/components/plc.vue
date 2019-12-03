@@ -192,7 +192,8 @@ export default {
       autosizable: true,
       responsive: true,
       displayModeBar: true
-      // fillFrame: true,
+      // scrollZoom: 'gl3d'
+      // fillFrame: true
     },
     layout1: {
       autosize: true,
@@ -247,7 +248,7 @@ export default {
     getData: true,
     // cycle: null,
     slotNr: 2,
-    period: 250
+    period: 10
   }),
   beforeDestroy() {
     // clearInterval(this.timer);

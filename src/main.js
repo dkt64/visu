@@ -38,14 +38,21 @@ var plcData = null
 var tab1 = [
   {
     z: [],
-    type: "heatmap"
+    type: "heatmap",
+    colorscale: 'YIGnBu',
   }
 ]
 
 var tab2 = [
   {
     z: [],
-    type: "heatmap"
+    type: "heatmap",
+    colorscale: 'YIOrRd',
+    // colorscale: [
+    //   ['0.0', '#17becf'],
+    //   ['0.5', 'rgb(255,0,255)'],
+    //   ['1.0', 'rgb(255,255,255)']
+    // ],
   }
 ]
 
