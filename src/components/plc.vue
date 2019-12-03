@@ -293,6 +293,7 @@ export default {
         this.subscribe_event();
         this.$store.state.z_values.length = 0;
         this.$store.state.connected = true;
+        this.$store.state.dummy = 0
       } else {
         // eslint-disable-next-line
         console.log(
