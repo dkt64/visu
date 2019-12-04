@@ -17,7 +17,27 @@
           style="margin-left: 10px"
         >Clear data...</v-btn>
       </v-list-item>
-      <div>{{ $store.state.plcData }}</div>
+      <v-list-item>
+        <v-list-item-title style="margin: 14px">Stats counter table:</v-list-item-title>
+      </v-list-item>
+      <v-list-item>
+        <div style="margin: 14px">{{ $store.state.objData.Stats }}</div>
+      </v-list-item>
+
+      <v-list-item>
+        <v-list-item-title style="margin: 14px">Transitions table:</v-list-item-title>
+      </v-list-item>
+      <v-list-item>
+        <div style="margin: 14px">{{ $store.state.objData.Trans }}</div>
+      </v-list-item>
+
+      <v-list-item>
+        <v-list-item-title style="margin: 14px">Registered states table:</v-list-item-title>
+      </v-list-item>
+      <v-list-item>
+        <div style="margin: 14px">{{ $store.state.objData.States }}</div>
+      </v-list-item>
+      <!-- <div>{{ $store.state.plcData }}</div> -->
       <!-- <v-list-item>{{ $store.state.plcData }}</v-list-item> -->
     </v-card>
   </v-container>
@@ -29,7 +49,9 @@ import axios from "axios";
 
 export default {
   components: {},
-  data: () => ({}),
+  data: () => ({
+    //
+  }),
   beforeDestroy() {},
   methods: {
     clearData() {
@@ -51,8 +73,13 @@ export default {
           if (response.data != null) {
             this.$store.state.plcData = response.data;
 
-            // eslint-disable-next-line
-            console.log("Response: " + response.data);
+            // // eslint-disable-next-line
+            // console.log("Response plcData: " + this.$store.state.plcData);
+
+            this.$store.state.objData = JSON.parse(response.data);
+            
+            // // eslint-disable-next-line
+            // console.log("Response Stats: " + this.$store.state.objData.Stats);
           }
         })
         .catch(function(error) {

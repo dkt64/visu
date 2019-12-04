@@ -294,7 +294,7 @@ export default {
         this.subscribe_event();
         this.$store.state.z_values.length = 0;
         this.$store.state.connected = true;
-        this.$store.state.dummy = 0
+        this.$store.state.dummy = 0;
       } else {
         // eslint-disable-next-line
         console.log(
@@ -305,21 +305,23 @@ export default {
     write_cycles(data) {
       var stringData = JSON.parse(data);
 
-      // eslint-disable-next-line
-      console.log("Received cycles:", stringData.content);
+      if (stringData.content != null) {
+        // eslint-disable-next-line
+        console.log("Received cycles:", stringData.content);
 
-      // var z_values = [];
-      // var index
-      // for (index = 0; index < 256; index) {
-      //   var byteArray = base64js.toByteArray(stringData.content[index]);
-      //   this.$store.state.z_values.push(byteArray);
+        // var z_values = [];
+        // var index
+        // for (index = 0; index < 256; index) {
+        //   var byteArray = base64js.toByteArray(stringData.content[index]);
+        //   this.$store.state.z_values.push(byteArray);
 
-      // }
+        // }
 
-      // stringData.content.shift();
+        // stringData.content.shift();
 
-      if (this.getData) {
-        this.$store.state.cycles = stringData.content;
+        if (this.getData) {
+          this.$store.state.cycles = stringData.content;
+        }
       }
     },
     write_stats(data) {

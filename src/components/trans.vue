@@ -71,7 +71,7 @@ export default {
       this.$store.state.transData = "";
     },
     fetchData() {
-      var query = "http://localhost/api/v1/trans";
+      var query = "http://localhost/api/v1/data";
 
       const config = {
         timeout: 10000
@@ -84,10 +84,15 @@ export default {
           console.log("fetchData()");
 
           if (response.data != null) {
-            this.$store.state.transData = response.data;
+            this.$store.state.plcData = response.data;
 
-            // eslint-disable-next-line
-            console.log("Response: " + response.data);
+            // // eslint-disable-next-line
+            // console.log("Response plcData: " + this.$store.state.plcData);
+
+            this.$store.state.objData = JSON.parse(response.data);
+            
+            // // eslint-disable-next-line
+            // console.log("Response Stats: " + this.$store.state.objData.Stats);
           }
         })
         .catch(function(error) {

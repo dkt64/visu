@@ -36,7 +36,10 @@ var dummy = 0
 var cycles = []
 
 var plcData = null
-var transData = null
+var objData = null
+var Transitions = null
+var Stats = null
+var States = null
 
 var tab1 = [
   {
@@ -67,10 +70,13 @@ const store = new Vuex.Store({
       z_values,
       dummy,
       plcData,
-      transData,
       tab1,
       tab2,
       cycles,
+      Transitions,
+      Stats,
+      States,
+      objData,
     }
   })
 
