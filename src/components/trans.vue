@@ -48,6 +48,8 @@
             <Texture type="ambient" src="textura.png" v-model="myTexture"></Texture>
           </Material>
         </Plane>
+
+        <!-- <IcoSphere :position="[-1, 0, 0]" :scaling="[2,2,2]"></IcoSphere> -->
       </Scene>
     </v-card>
   </v-container>
@@ -56,19 +58,25 @@
 <script>
 // import { Vector3 } from "@babylonjs/core/Maths/math";
 import axios from "axios";
+// import babylon from 'vue-babylonjs'
 
 export default {
-  components: {},
+  components: {
+  },
   data: () => ({
     myScene: null,
     myCamera: null,
     myLight: null,
-    myTexture: null
+    myTexture: null,
+    myIcoSpheres: []
   }),
   beforeDestroy() {},
   methods: {
     clearData() {
       this.$store.state.transData = "";
+    },
+    DrawData() {
+
     },
     fetchData() {
       var query = "http://localhost/api/v1/data";
@@ -93,6 +101,8 @@ export default {
             
             // // eslint-disable-next-line
             // console.log("Response Stats: " + this.$store.state.objData.Stats);
+
+            this.DrawData()
           }
         })
         .catch(function(error) {
