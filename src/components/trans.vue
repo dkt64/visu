@@ -25,7 +25,7 @@
           :alpha="Math.PI*5/4"
           :beta="Math.PI/3"
           :radius="100"
-          :target="[0, 10, 0]"
+          :target="[0, 5, 0]"
           v-model="myCamera"
         ></Camera>
         <HemisphericLight diffuse="#888"></HemisphericLight>
@@ -49,7 +49,8 @@
           </Material>
         </Plane>
 
-        <!-- <IcoSphere :position="[-1, 0, 0]" :scaling="[2,2,2]"></IcoSphere> -->
+        <IcoSphere :position="[0, 5, 0]" :scaling="[2,2,2]"></IcoSphere>
+
       </Scene>
     </v-card>
   </v-container>
@@ -61,8 +62,7 @@ import axios from "axios";
 // import babylon from 'vue-babylonjs'
 
 export default {
-  components: {
-  },
+  components: {},
   data: () => ({
     myScene: null,
     myCamera: null,
@@ -76,7 +76,10 @@ export default {
       this.$store.state.transData = "";
     },
     DrawData() {
-
+      // eslint-disable-next-line
+      console.log("DrawData()");
+      // eslint-disable-next-line
+      console.log(this.myScene);
     },
     fetchData() {
       var query = "http://localhost/api/v1/data";
@@ -98,11 +101,11 @@ export default {
             // console.log("Response plcData: " + this.$store.state.plcData);
 
             this.$store.state.objData = JSON.parse(response.data);
-            
+
             // // eslint-disable-next-line
             // console.log("Response Stats: " + this.$store.state.objData.Stats);
 
-            this.DrawData()
+            this.DrawData();
           }
         })
         .catch(function(error) {

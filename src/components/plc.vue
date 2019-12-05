@@ -23,8 +23,8 @@
                     label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
                   ></v-text-field>
                   <v-text-field
-                    v-model="period"
-                    label="Period [ms] (0 ms means as fast as possible)"
+                    v-model="precision"
+                  label="Precision [bytes]"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -249,7 +249,7 @@ export default {
     getData: true,
     // cycle: null,
     slotNr: 2,
-    period: 10
+    precision: 0
   }),
   beforeDestroy() {
     // clearInterval(this.timer);
@@ -286,11 +286,8 @@ export default {
         console.log("connect() to " + this.$store.state.plcAddress);
 
         // clearInterval(this.cycle);
-        // this.cycle = setInterval(this.fetchData, this.period);
-
-        // interval.clearAll();
-        // interval.make(this.fetchData, Number(this.period));
-        // this.fetchData();
+        // this.cycle = setInterval(this.fetchData, this.Precision);        // interval.clearAll();
+        // interval.make(this.fetchData, Number(this.Precision))        // this.fetchData();
         this.subscribe_event();
         this.$store.state.z_values.length = 0;
         this.$store.state.connected = true;
@@ -381,9 +378,9 @@ export default {
             this.$store.state.plcAddress +
             "&slot_nr=" +
             this.slotNr +
-            "&period=" +
-            this.period,
-          { format: "plain" }
+            "&precision=" +
+            this.precision,
+        { format: "plain" }
         ) // or { format: 'json' }
           .then(sse => {
             // Store SSE object at a higher scope

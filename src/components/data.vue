@@ -51,6 +51,7 @@ export default {
   components: {},
   data: () => ({
     //
+    myData: null,
   }),
   beforeDestroy() {},
   methods: {
