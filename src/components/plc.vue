@@ -19,7 +19,7 @@
                   <!-- v-on:keyup.enter="connect" -->
                   <v-text-field v-model="$store.state.plcAddress" label="Remote PLC IP Address"></v-text-field>
                   <v-text-field
-                    v-model="slotNr"
+                    v-model="$store.state.slotNr"
                     label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
                   ></v-text-field>
                   <v-text-field
@@ -248,7 +248,7 @@ export default {
     response_data: null,
     getData: true,
     // cycle: null,
-    slotNr: 2,
+    // slotNr: 2,
     precision: 0
   }),
   beforeDestroy() {
@@ -377,7 +377,7 @@ export default {
             "?plc_address=" +
             this.$store.state.plcAddress +
             "&slot_nr=" +
-            this.slotNr +
+            this.$store.state.slotNr +
             "&precision=" +
             this.precision,
         { format: "plain" }

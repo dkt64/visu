@@ -56,7 +56,7 @@ export default {
   beforeDestroy() {},
   methods: {
     clearData() {
-      this.$store.state.plcData = "";
+      // this.$store.state.plcData = "";
     },
     fetchData() {
       var query = "http://localhost/api/v1/data";

@@ -30,16 +30,22 @@ const router = new Router({ mode: 'history', routes })
 // Global data
 var connected = false
 var plcAddress = ""
+var slotNr = 0
 var msgServer = null
 var z_values = []
 var dummy = 0
 var cycles = []
 
-var plcData = null
-var objData = null
-var Transitions = null
-var Stats = null
-var States = null
+var plcData = []
+var objData = []
+var Transitions = []
+var Stats = []
+var States = []
+
+var quantity = 0
+var positions = []
+var scales = []
+var rotation = 0.0
 
 var tab1 = [
   {
@@ -66,6 +72,7 @@ const store = new Vuex.Store({
     state: {
       connected,
       plcAddress,
+      slotNr,
       msgServer,
       z_values,
       dummy,
@@ -77,6 +84,10 @@ const store = new Vuex.Store({
       Stats,
       States,
       objData,
+      quantity,
+      positions,
+      scales,
+      rotation
     }
   })
 
@@ -85,5 +96,6 @@ new Vue({
   axios,
   router,
   store,
+  babylon,
   render: h => h(App)
 }).$mount('#app')

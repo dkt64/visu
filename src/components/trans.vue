@@ -18,39 +18,50 @@
         >Clear data...</v-btn>
       </v-list-item>
       <!-- SCENA -->
-      <Scene v-model="myScene">
+      <Scene @before-render$="beforeRender" ref="myScene">
         <!-- Kamera -->
         <Camera
           type="arcRotate"
-          :alpha="Math.PI*5/4"
-          :beta="Math.PI/3"
-          :radius="100"
-          :target="[0, 5, 0]"
-          v-model="myCamera"
+          :alpha="Math.PI/2"
+          :beta="Math.PI/2"
+          :radius="150"
+          :target="[0, 0, 10]"
         ></Camera>
-        <HemisphericLight diffuse="#888"></HemisphericLight>
+        <!-- <HemisphericLight diffuse="#888"></HemisphericLight> -->
 
         <!-- Światło punktowe z żarówką -->
-        <PointLight :position="[0,200,0]" specular="#FFF" diffuse="#FFF" v-model="myLight"></PointLight>
-        <Sphere :position="[0, 200, 0]" :scaling="[3, 3, 3]">
+        <PointLight :position="[0,0,500]" specular="#AAF" diffuse="#AAF"></PointLight>
+        <!-- <Sphere :position="[0, 200, 0]" :scaling="[3, 3, 3]">
           <Material specular="#FFF" diffuse="#FFF"></Material>
-        </Sphere>
+        </Sphere>-->
 
         <!-- Podłoga -->
-        <Plane
-          :height="2"
-          :width="1"
-          :rotation="[Math.PI/2,0,0]"
-          :position="[0, 0, 0]"
-          :scaling="[100, 100, 100]"
-        >
-          <Material diffuse="#AAA">
-            <Texture type="ambient" src="textura.png" v-model="myTexture"></Texture>
+        <Plane :rotation="[Math.PI,0,0]" :position="[0, 0, 0]" :scaling="[300, 300, 300]">
+          <Material diffuse="#F88">
+            <Texture type="ambient" src="textura.png"></Texture>
           </Material>
         </Plane>
 
-        <IcoSphere :position="[0, 5, 0]" :scaling="[2,2,2]"></IcoSphere>
+        <Entity
+          v-for="(_, i) in Array($store.state.quantity).fill()"
+          :key="i"
+          :position="$store.state.positions[i]"
+          :scaling="$store.state.scales[i]"
+        >
+          <IcoSphere></IcoSphere>
+        </Entity>
 
+        <!-- <Asset
+          src="engineer_v2_sliced.stl"
+          :rotation="[Math.PI, 0, Math.PI]"
+          :scaling="[10, 10, 10]"
+          :position="[0, 0, 50]"
+        >
+          <Material diffuse="#F88">
+          </Material>
+        </Asset>-->
+        <!-- <Asset src="https://www.babylonjs-playground.com/scenes/skull.babylon" :rotation="[Math.PI, 0, Math.PI]" :scaling="[1, 1, 1]" :position="[0, 0, 50]"></Asset> -->
+        <!-- <Asset src="https://rawgit.com/saswata26/misc/master/base.stl" :scaling="[1,1,1]" :position="[0,0,50]"></Asset> -->
       </Scene>
     </v-card>
   </v-container>
@@ -60,26 +71,24 @@
 // import { Vector3 } from "@babylonjs/core/Maths/math";
 import axios from "axios";
 // import babylon from 'vue-babylonjs'
+// import babylon from '@babylonjs/core';
+// import { babylon } from 'vue-babylonjs'
 
 export default {
-  components: {},
+  components: {
+    // IcoSphere,
+  },
   data: () => ({
     myScene: null,
-    myCamera: null,
-    myLight: null,
-    myTexture: null,
-    myIcoSpheres: []
   }),
   beforeDestroy() {},
   methods: {
     clearData() {
-      this.$store.state.transData = "";
-    },
-    DrawData() {
       // eslint-disable-next-line
-      console.log("DrawData()");
+      // console.log(this.$refs.myScene);
+      // this.$refs.myScene.$children[5].$props.scaling = 100.0
       // eslint-disable-next-line
-      console.log(this.myScene);
+      // console.log(this.$refs.myScene.childElementCount);
     },
     fetchData() {
       var query = "http://localhost/api/v1/data";
@@ -112,15 +121,55 @@ export default {
           // eslint-disable-next-line
           console.log(error);
         });
+    },
+    beforeRender() {
+      // eslint-disable-next-line
+      // console.log("beforeRender()....");
+
+      this.time = performance.now();
+
+      var angle_add;
+      var i;
+      angle_add = (Math.PI * 2) / this.$store.state.quantity;
+      for (i = 0; i < this.$store.state.quantity; i++) {
+        this.$store.state.positions[i][0] =
+          5 * this.$store.state.quantity * Math.sin(i * angle_add + this.$store.state.rotation);
+        this.$store.state.positions[i][1] =
+          5 * this.$store.state.quantity * Math.cos(i * angle_add + this.$store.state.rotation);
+        this.$store.state.positions[i][2] = 20;
+      }
+
+      this.$store.state.rotation += Math.PI / 25;
+    },
+    DrawData() {
+      // eslint-disable-next-line
+      console.log("DrawData()");
+
+      var j = this.$store.state.objData.Stats.length;
+
+      // eslint-disable-next-line
+      console.log("length = " + j);
+
+      var i;
+      for (i = this.$store.state.quantity; i < j; i++) {
+        this.$store.state.positions.push([0, 0, 0]);
+        this.$store.state.scales.push([
+          this.$store.state.objData.Stats[i] / 5,
+          this.$store.state.objData.Stats[i] / 5,
+          this.$store.state.objData.Stats[i] / 5
+        ]);
+
+        this.$store.state.quantity++;
+      }
     }
   },
   created() {
     // eslint-disable-next-line
     console.log("created(trans)....");
-  },
-  beforeRender() {
-    // eslint-disable-next-line
-    console.log("beforeRender()....");
+
+    // this.positions.push([0, 0, 0]);
+    // this.scales.push([5, 5, 5]);
+    // this.quantity = 1;
   },
   destroyed() {}
 };
