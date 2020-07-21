@@ -112,7 +112,7 @@ export default {
             this.$store.state.objData = JSON.parse(response.data);
 
             // // eslint-disable-next-line
-            // console.log("Response Stats: " + this.$store.state.objData.Stats);
+            console.log("Response Stats: " + this.$store.state.objData.Stats);
 
             this.DrawData();
           }
