@@ -2,7 +2,9 @@
   <v-container>
     <v-layout text-center wrap>
       <v-flex mb-1>
-        <h1 class="display-2 font-weight-bold mb-3">SIEMENS S7 PLC VISUALISATION SYSTEM</h1>
+        <h1 class="display-2 font-weight-bold mb-3">
+          SIEMENS S7 PLC VISUALISATION SYSTEM
+        </h1>
       </v-flex>
     </v-layout>
 
@@ -11,20 +13,27 @@
         <v-card elevation="10">
           <v-list-item>
             <v-list-item-content>
-              <v-list-item-title class="headline mb-1">SIEMENS S7 PLC</v-list-item-title>
-              <v-list-item-subtitle>Setup connection parameters:</v-list-item-subtitle>
+              <v-list-item-title class="headline mb-1"
+                >SIEMENS S7 PLC</v-list-item-title
+              >
+              <v-list-item-subtitle
+                >Setup connection parameters:</v-list-item-subtitle
+              >
 
               <v-row no-gutters>
                 <v-col>
                   <!-- v-on:keyup.enter="connect" -->
-                  <v-text-field v-model="$store.state.plcAddress" label="Remote PLC IP Address"></v-text-field>
+                  <v-text-field
+                    v-model="$store.state.plcAddress"
+                    label="Remote PLC IP Address"
+                  ></v-text-field>
                   <v-text-field
                     v-model="$store.state.slotNr"
                     label="Slot nr (S7-300/400: nr 2, S7-1200/1500: nr 0)"
                   ></v-text-field>
                   <v-text-field
                     v-model="precision"
-                  label="Precision [bytes]"
+                    label="Precision [bytes]"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -36,17 +45,25 @@
                   color="success"
                   @click="connect"
                   :disabled="$store.state.connected == true"
-                >connect</v-btn>
+                  >connect</v-btn
+                >
                 <v-btn
                   style="width: 110px;margin: 2px"
                   @click="disconnect"
                   :disabled="$store.state.connected == false"
-                >disconnect</v-btn>
+                  >disconnect</v-btn
+                >
               </v-row>
 
               <v-card elevation="10" style="margin-top: 8px">
-                <v-checkbox v-model="getData" :label="`Draw data`" style="margin: 14px"></v-checkbox>
-                <v-list-item-subtitle style="margin: 14px">Counter {{$store.state.dummy}}</v-list-item-subtitle>
+                <v-checkbox
+                  v-model="getData"
+                  :label="`Draw data`"
+                  style="margin: 14px"
+                ></v-checkbox>
+                <v-list-item-subtitle style="margin: 14px"
+                  >Counter {{ $store.state.dummy }}</v-list-item-subtitle
+                >
               </v-card>
             </v-list-item-content>
           </v-list-item>
@@ -55,12 +72,20 @@
 
       <v-col cols="6">
         <!-- <v-card elevation="10"> -->
-        <Plotly :data="$store.state.tab1" :layout="layout1" :options="options1"></Plotly>
+        <Plotly
+          :data="$store.state.tab1"
+          :layout="layout1"
+          :options="options1"
+        ></Plotly>
         <!-- </v-card> -->
       </v-col>
       <v-col cols="4">
         <!-- <v-card elevation="10"> -->
-        <Plotly :data="$store.state.tab2" :layout="layout2" :options="options2"></Plotly>
+        <Plotly
+          :data="$store.state.tab2"
+          :layout="layout2"
+          :options="options2"
+        ></Plotly>
         <!-- </v-card> -->
       </v-col>
     </v-row>
@@ -68,8 +93,12 @@
       <v-card elevation="10" style="margin-left: 12px">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="headline mb-1">MACHINE CYCLES FOUND</v-list-item-title>
-            <v-list-item-subtitle>{{$store.state.cycles}} ms</v-list-item-subtitle>
+            <v-list-item-title class="headline mb-1"
+              >MACHINE CYCLES FOUND</v-list-item-title
+            >
+            <v-list-item-subtitle
+              >{{ $store.state.cycles }} ms</v-list-item-subtitle
+            >
           </v-list-item-content>
         </v-list-item>
       </v-card>
@@ -179,7 +208,7 @@ export default {
     // mask
   },
   components: {
-    Plotly
+    Plotly,
   },
   data: () => ({
     server_message: null,
@@ -187,12 +216,12 @@ export default {
     y_values: [],
     myWindow: {
       width: 0,
-      height: 0
+      height: 0,
     },
     options1: {
-      autosizable: true,
+      // autosizable: true,
       responsive: true,
-      displayModeBar: true
+      // displayModeBar: true
       // scrollZoom: 'gl3d'
       // fillFrame: true
     },
@@ -203,14 +232,14 @@ export default {
       title: {
         text: "PLC streaming data",
         font: {
-          size: 32
-        }
-      }
+          size: 32,
+        },
+      },
     },
     options2: {
       autosizable: true,
       responsive: true,
-      displayModeBar: true
+      displayModeBar: true,
       // fillFrame: true,
     },
     layout2: {
@@ -221,12 +250,12 @@ export default {
       title: {
         text: "Values range live map",
         font: {
-          size: 32
-        }
+          size: 32,
+        },
       },
       xaxis: {
         // range: [0, 256],
-        autorange: true
+        autorange: true,
         // showgrid: true,
         // zeroline: false,
         // linecolor: "black",
@@ -235,13 +264,13 @@ export default {
       },
       yaxis: {
         // range: [0, 256],
-        autorange: true
+        autorange: true,
         // showgrid: true,
         // zeroline: false,
         // linecolor: "black",
         // showticklabels: false,
         // ticks: ""
-      }
+      },
     },
 
     fetchedData: null,
@@ -249,12 +278,17 @@ export default {
     getData: true,
     // cycle: null,
     // slotNr: 2,
-    precision: 0
+    precision: 0,
   }),
   beforeDestroy() {
     // clearInterval(this.timer);
     // interval.clearAll();
     // this.$store.state.connected = false;
+  },
+  watch: {
+    "$store.state.z_values"() {
+      this.$store.state.tab1[0].z = this.$store.state.z_values;
+    },
   },
   methods: {
     handleResize() {
@@ -362,7 +396,7 @@ export default {
         this.$store.state.z_values.push(stringData.content);
         // this.y_values.push(stringData.time);
 
-        this.$store.state.tab1[0].z = this.$store.state.z_values;
+        // this.$store.state.tab1[0].z = this.$store.state.z_values;
         // this.$store.state.tab1[0].y = this.y_values;
         // this.$store.state.tab1[0].y 2 this.y_values;
         // eslint-disable-next-line
@@ -380,14 +414,14 @@ export default {
             this.$store.state.slotNr +
             "&precision=" +
             this.precision,
-        { format: "plain" }
+          { format: "plain" }
         ) // or { format: 'json' }
-          .then(sse => {
+          .then((sse) => {
             // Store SSE object at a higher scope
             this.$store.state.msgServer = sse;
 
             // Catch any errors (ie. lost connections, etc.)
-            sse.onError(e => {
+            sse.onError((e) => {
               // eslint-disable-next-line
               console.error("lost connection; giving up!", e);
 
@@ -399,13 +433,13 @@ export default {
             });
 
             // Listen for messages without a specified event
-            sse.subscribe("", data => {
+            sse.subscribe("", (data) => {
               // eslint-disable-next-line
               console.log("Received a message w/o an event!", data);
             });
 
             // Listen for messages based on their event (in this case, "chat")
-            sse.subscribe("data", message => {
+            sse.subscribe("data", (message) => {
               // eslint-disable-next-line
               // console.log("Received data: ", message);
               this.write_data(message);
@@ -422,7 +456,7 @@ export default {
             });
 
             // Listen for messages based on their event (in this case, "chat")
-            sse.subscribe("stats", message => {
+            sse.subscribe("stats", (message) => {
               this.write_stats(message);
 
               // eslint-disable-next-line
@@ -440,7 +474,7 @@ export default {
             });
 
             // Listen for messages based on their event (in this case, "chat")
-            sse.subscribe("cycles", message => {
+            sse.subscribe("cycles", (message) => {
               this.write_cycles(message);
 
               // eslint-disable-next-line
@@ -473,7 +507,7 @@ export default {
             //   console.log("Stopped listening to data messages!");
             // }, 5000);
           })
-          .catch(err => {
+          .catch((err) => {
             // When this error is caught, it means the initial connection to the
             // events server failed.  No automatic attempts to reconnect will be made.
             // eslint-disable-next-line
@@ -487,7 +521,7 @@ export default {
         // eslint-disable-next-line
         console.error("Connection aborted");
       }
-    }
+    },
   },
   created() {
     // eslint-disable-next-line
@@ -528,6 +562,6 @@ export default {
   },
   destroyed() {
     window.removeEventListener("resize", this.handleResize);
-  }
+  },
 };
 </script>
